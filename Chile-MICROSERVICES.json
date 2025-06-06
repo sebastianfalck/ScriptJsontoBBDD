@@ -1,0 +1,274 @@
+{
+  "projects": [
+    {
+      "name": "CHL Car Boosting",
+      "ms": [
+        {
+          "repositoryUrl": "https://devops-latam-assurance.is.echonet/git/scm/chcb/cb-car-base-rate.git",
+          "tokenOcp": "ocTokenCarBoostingchl",
+          "config": {
+            "appName": "cb-car-base-rate",
+            "country": "chile",
+            "ocpLabel": "APP-backend",
+            "Project": "car-boosting",
+            "baseImageVersion": "openjdk-17-runtime-regional",
+            "secrets": [
+              {
+                "secret": true,
+                "secretName": "cb-car-base-rate"
+              }
+            ],
+            "configMaps": [
+              {
+                "configMap": true,
+                "configMapName": "cb-car-base-rate"
+              }
+            ],
+            "volumes": [
+              {
+                "volume": true,
+                "mountPath": "/deployments/cert"
+              }
+            ],
+            "resQuotas": [
+              {
+                "cpuLimits": "300m",
+                "cpuRequest": "25m",
+                "replicas": "1",
+                "memoryLimits": "300Mi",
+                "memoryRequest": "50Mi"
+              }
+            ]
+          }
+        },
+        {
+          "repositoryUrl": "https://devops-latam-assurance.is.echonet/git/scm/chcb/cb-car-blacklist.git",
+          "tokenOcp": "ocTokenCarBoostingchl",
+          "config": {
+            "appName": "cb-car-blacklist",
+            "country": "chile",
+            "ocpLabel": "APP-backend",
+            "Project": "car-boosting",
+            "baseImageVersion": "openjdk-17-runtime-regional",
+            "secrets": [
+              {
+                "secret": true,
+                "secretName": "cb-car-blacklist"
+              }
+            ],
+            "configMaps": [
+              {
+                "configMap": true,
+                "configMapName": "cb-car-blacklist"
+              }
+            ],
+            "volumes": [
+              {
+                "volume": true,
+                "mountPath": "/deployments/cert"
+              }
+            ],
+            "resQuotas": [
+              {
+                "cpuLimits": "300m",
+                "cpuRequest": "25m",
+                "replicas": "1",
+                "memoryLimits": "300Mi",
+                "memoryRequest": "50Mi"
+              }
+            ]
+          }
+        },
+        {
+          "repositoryUrl": "https://devops-latam-assurance.is.echonet/git/scm/chcb/cb-car-bonus.git",
+          "tokenOcp": "ocTokenCarBoostingchl",
+          "config": {
+            "appName": "cb-car-bonus",
+            "country": "chile",
+            "ocpLabel": "APP-backend",
+            "Project": "car-boosting",
+            "baseImageVersion": "openjdk-17-runtime-regional",
+            "secrets": [
+              {
+                "secret": true,
+                "secretName": "cb-car-bonus"
+              }
+            ],
+            "configMaps": [
+              {
+                "configMap": true,
+                "configMapName": "cb-car-bonus"
+              }
+            ],
+            "volumes": [
+              {
+                "volume": true,
+                "mountPath": "/deployments/cert"
+              }
+            ],
+            "resQuotas": [
+              {
+                "cpuLimits": "300m",
+                "cpuRequest": "25m",
+                "replicas": "1",
+                "memoryLimits": "300Mi",
+                "memoryRequest": "50Mi"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Col ms",
+      "ms": [
+        {
+          "repositoryUrl": "https://alm-latam-assurance.dev.echonet/git/scm/col/ms-config.git",
+          "buildConfigurationMode": "v2",
+          "tokenOcp": "col-c-dev-msproductoffer",
+          "config": {
+            "appName": "ms-config",
+            "country": "colombia",
+            "ocpLabel": "APP-backend",
+            "project": "digital-backend",
+            "usage": "internal",
+            "baseImageVersion": "openjdk-21-runtime-regional",
+            "secrets": [
+              {
+                "secretName": "ms-config"
+              }
+            ],
+            "configMaps": [
+              {
+                "configMapName": "ms-config"
+              }
+            ],
+            "volumes": [
+              {
+                "mountPath": "/deployments/cert"
+              }
+            ],
+            "resQuotasmaster": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            },
+            "resQuotasdev": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            },
+            "resQuotasqa": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            }
+          }
+        },
+        {
+          "repositoryUrl": "https://alm-latam-assurance.dev.echonet/git/scm/col/ms-generate-documents.git",
+          "buildConfigurationMode": "v2",
+          "tokenOcp": "col-c-dev-msproductoffer",
+          "config": {
+            "appName": "ms-generate-documents",
+            "country": "colombia",
+            "ocpLabel": "APP-backend",
+            "project": "digital-backend",
+            "usage": "internal",
+            "baseImageVersion": "openjdk-21-runtime-regional",
+            "secrets": [
+              {
+                "secret": false
+              }
+            ],
+            "configMaps": [
+              {
+                "configMapName": "ms-generate-documents"
+              }
+            ],
+            "volumes": [],
+            "resQuotasmaster": {
+              "cpuLimits": "220m",
+              "cpuRequest": "100m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "50m",
+              "replicas": "1"
+            },
+            "resQuotasdev": {
+              "cpuLimits": "220m",
+              "cpuRequest": "100m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "50m",
+              "replicas": "1"
+            },
+            "resQuotasqa": {
+              "cpuLimits": "220m",
+              "cpuRequest": "100m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "50m",
+              "replicas": "1"
+            }
+          }
+        },
+        {
+          "repositoryUrl": "https://alm-latam-assurance.dev.echonet/git/scm/col/ms-product-info.git",
+          "buildConfigurationMode": "v2",
+          "tokenOcp": "col-c-dev-msproductoffer",
+          "config": {
+            "appName": "ms-product-info",
+            "country": "colombia",
+            "ocpLabel": "APP-backend",
+            "project": "digital-backend",
+            "usage": "internal",
+            "baseImageVersion": "openjdk-21-runtime-regional",
+            "secrets": [
+              {
+                "secret": false
+              }
+            ],
+            "configMaps": [
+              {
+                "configMapName": "ms-product-info"
+              }
+            ],
+            "volumes": [
+              {
+                "mountPath": "/deployments/cert"
+              }
+            ],
+            "resQuotasmaster": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            },
+            "resQuotasdev": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            },
+            "resQuotasqa": {
+              "cpuLimits": "220m",
+              "cpuRequest": "75m",
+              "memoryLimits": "256Mi",
+              "memoryRequest": "75Mi",
+              "replicas": "2"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
+
+
