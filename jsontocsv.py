@@ -64,7 +64,13 @@ for filename in os.listdir(json_folder):
             project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
             for ms in project.get('ms', []):
                 config = ms.get('config', {})
-                app_name = config.get('appName')
+                # Hacer que la búsqueda de claves sea insensible a mayúsculas/minúsculas
+                def get_key_insensitive(d, key):
+                    for k in d.keys():
+                        if k.lower() == key.lower():
+                            return d[k]
+                    return [] if key in ['secrets','configMaps','volumes'] else None
+                app_name = get_key_insensitive(config, 'appName')
                 appname_id = get_or_create_id(appname_id_map, app_name, 'appname_counter')
                 repo_url = ms.get('repositoryUrl')
                 app_dir_key = (appname_id, repo_url)
@@ -72,17 +78,17 @@ for filename in os.listdir(json_folder):
                     app_dir_id_map[app_dir_key] = app_dir_counter
                     app_dir_counter += 1
                 app_dir_id = app_dir_id_map[app_dir_key]
-                country = config.get('country')
+                country = get_key_insensitive(config, 'country')
                 country_id = get_or_create_id(country_id_map, country, 'country_counter')
-                label = config.get('ocpLabel')
+                label = get_key_insensitive(config, 'ocpLabel')
                 label_id = get_or_create_id(label_id_map, label, 'label_counter')
                 for env in ['dev', 'qa', 'master']:
                     env_id = get_or_create_id(env_id_map, env, 'env_counter')
                     token_key_matched, token_value = get_token_key(ms.get('tokenOcp'), env)
                     quotas = {
-                        'dev': config.get('resQuotasdev'),
-                        'qa': config.get('resQuotasqa'),
-                        'master': config.get('resQuotasmaster'),
+                        'dev': get_key_insensitive(config, 'resQuotasdev'),
+                        'qa': get_key_insensitive(config, 'resQuotasqa'),
+                        'master': get_key_insensitive(config, 'resQuotasmaster'),
                     }
                     if not quotas['dev'] and not quotas['qa'] and quotas['master']:
                         quotas['dev'] = quotas['qa'] = quotas['master']
@@ -97,9 +103,9 @@ for filename in os.listdir(json_folder):
                             ms_id_counter += 1
                         ms_id = ms_id_map[ms_key]
                         # --- Normalización booleana de openshift_properties_directory ---
-                        secrets_enabled = any(s.get('secret', False) for s in config.get('secrets', []))
-                        configmap_enabled = any(c.get('configMap', False) for c in config.get('configMaps', []))
-                        volume_enabled = any(v.get('volume', False) for v in config.get('volumes', []))
+                        secrets_enabled = any(s.get('secret', False) for s in get_key_insensitive(config, 'secrets'))
+                        configmap_enabled = any(c.get('configMap', False) for c in get_key_insensitive(config, 'configMaps'))
+                        volume_enabled = any(v.get('volume', False) for v in get_key_insensitive(config, 'volumes'))
                         microservice_rows.append({
                             'id': ms_id,
                             'cpulimits': quota_item.get('cpuLimits'),
