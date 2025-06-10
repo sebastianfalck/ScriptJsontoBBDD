@@ -265,6 +265,13 @@ all_tables = {
     ]
 }
 
+# Eliminar todos los CSVs existentes en la carpeta de salida antes de crear nuevos
+for f in csv_folder.glob('*.csv'):
+    try:
+        f.unlink()
+    except Exception as e:
+        print(f"No se pudo eliminar {f}: {e}")
+
 # Generar CSV vacío para cada tabla si no existe
 for table, headers in all_tables.items():
     csv_path = csv_folder / f"{table}.csv"
