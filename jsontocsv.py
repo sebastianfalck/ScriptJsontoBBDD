@@ -59,11 +59,20 @@ for filename in os.listdir(json_folder):
                 print(f"⚠️ Error al leer {filename}: {e}")
                 continue
 
-        for project in data.get('projects', []):
+        # Soportar tanto 'project' como 'projects' como clave raíz
+        projects = data.get('project') or data.get('projects') or []
+        for project in projects:
             project_name = project.get('name')
             project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
             for ms in project.get('ms', []):
+                # --- ADAPTACIÓN: parsear config si es string ---
                 config = ms.get('config', {})
+                if isinstance(config, str):
+                    try:
+                        config = json.loads(config)
+                    except Exception as e:
+                        print(f"⚠️ Error al parsear config en {filename}: {e}")
+                        config = {}
                 # Hacer que la búsqueda de claves sea insensible a mayúsculas/minúsculas
                 def get_key_insensitive(d, key):
                     for k in d.keys():
@@ -134,8 +143,8 @@ for filename in os.listdir(json_folder):
                             'env': env,
                             'country': country,
                             'ocpLabel': label,
-                            'project': config.get('project'),
-                            'baseImageVersion': config.get('baseImageVersion'),
+                            'project': get_key_insensitive(config, 'project'),
+                            'baseImageVersion': get_key_insensitive(config, 'baseImageVersion'),
                         })
 
 # Escribir microservice_properties_directory.csv con el orden de columnas de la tabla SQL

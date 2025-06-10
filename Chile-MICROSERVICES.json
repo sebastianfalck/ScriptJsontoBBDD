@@ -1,5 +1,5 @@
 {
-  "projects": [
+  "project": [
     {
       "name": "InventarioChl Project",
       "ms": [
@@ -7,58 +7,7 @@
           "repositoryUrl": "https://github.com/empresa/inventariochl",
           "buildConfigurationMode": "Release",
           "tokenOcp": "ocTokenInventarioChl",
-          "config": {
-            "appName": "InventarioChl",
-            "country": "Chile",
-            "ocpLabel": "labelInventarioChl",
-            "project": "inventariochl",
-            "baseImageVersion": "1.0",
-            "secrets": [
-              {
-                "secretName": "secretInventarioChl",
-                "secret": true
-              }
-            ],
-            "configMaps": [
-              {
-                "configMapName": "mapInventarioChl",
-                "configMap": true
-              }
-            ],
-            "volumes": [
-              {
-                "mountPath": "/dataInventarioChl",
-                "volume": true
-              }
-            ],
-            "resQuotasdev": [
-              {
-                "cpuLimits": "500m",
-                "cpuRequest": "250m",
-                "memoryLimits": "512Mi",
-                "memoryRequest": "256Mi",
-                "replicas": 2
-              }
-            ],
-            "resQuotasqa": [
-              {
-                "cpuLimits": "600m",
-                "cpuRequest": "300m",
-                "memoryLimits": "1Gi",
-                "memoryRequest": "512Mi",
-                "replicas": 3
-              }
-            ],
-            "resQuotasmaster": [
-              {
-                "cpuLimits": "700m",
-                "cpuRequest": "350m",
-                "memoryLimits": "2Gi",
-                "memoryRequest": "1Gi",
-                "replicas": 4
-              }
-            ]
-          }
+          "config": "{\"appName\":\"InventarioChl\",\"country\":\"Chile\",\"ocpLabel\":\"labelInventarioChl\",\"project\":\"inventariochl\",\"baseImageVersion\":\"1.0\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretInventarioChl\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapInventarioChl\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataInventarioChl\"}],\"resQuotasdev\":[{\"cpuLimits\":\"500m\",\"cpuRequest\":\"250m\",\"memoryLimits\":\"512Mi\",\"memoryRequest\":\"256Mi\",\"replicas\":2}],\"resQuotasqa\":[{\"cpuLimits\":\"600m\",\"cpuRequest\":\"300m\",\"memoryLimits\":\"1Gi\",\"memoryRequest\":\"512Mi\",\"replicas\":3}],\"resQuotasmaster\":[{\"cpuLimits\":\"700m\",\"cpuRequest\":\"350m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":4}]}"
         }
       ]
     },
@@ -69,40 +18,7 @@
           "repositoryUrl": "https://github.com/empresa/chilenewapp",
           "buildConfigurationMode": "Release",
           "tokenOcp": "ocTokenChlNewApp",
-          "config": {
-            "appName": "ChlNewApp",
-            "country": "Chile",
-            "ocpLabel": "labelChlNewApp",
-            "project": "chlnewapp",
-            "baseImageVersion": "1.0",
-            "secrets": [
-              {
-                "secretName": "secretChlNewApp",
-                "secret": true
-              }
-            ],
-            "configMaps": [
-              {
-                "configMapName": "mapChlNewApp",
-                "configMap": true
-              }
-            ],
-            "volumes": [
-              {
-                "mountPath": "/dataChlNewApp",
-                "volume": true
-              }
-            ],
-            "resQuotasdev": [
-              {
-                "cpuLimits": "800m",
-                "cpuRequest": "400m",
-                "memoryLimits": "2Gi",
-                "memoryRequest": "1Gi",
-                "replicas": 5
-              }
-            ]
-          }
+          "config": "{\"appName\":\"ChlNewApp\",\"country\":\"Chile\",\"ocpLabel\":\"labelChlNewApp\",\"project\":\"chlnewapp\",\"baseImageVersion\":\"1.0\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretChlNewApp\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapChlNewApp\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataChlNewApp\"}],\"resQuotasdev\":[{\"cpuLimits\":\"800m\",\"cpuRequest\":\"400m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":5}]}"
         }
       ]
     }
