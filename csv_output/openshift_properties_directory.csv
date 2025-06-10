@@ -1,0 +1,2 @@
+id,secrets_enabled,configmap_enabled,volume_enabled
+1,True,True,True

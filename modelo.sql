@@ -1,4 +1,3 @@
-
 -- ===============================
 -- ELIMINAR TABLAS EN ORDEN CORRECTO
 -- ===============================
@@ -33,129 +32,129 @@ DROP TABLE IF EXISTS image_directory;
 
 CREATE TABLE project_directory (
     id SERIAL PRIMARY KEY,
-    project_name VARCHAR(100) NOT NULL,
-    project_acronym VARCHAR(100) NOT NULL
+    project_name VARCHAR(100) NOT NULL, -- project_name (JSON: project_name)
+    project_acronym VARCHAR(100) NOT NULL -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE appname_directory (
     id SERIAL PRIMARY KEY,
-    app TEXT NOT NULL
+    app TEXT NOT NULL -- appName (JSON: config.appName)
 );
 
 CREATE TABLE app_directory (
     id SERIAL PRIMARY KEY,
     id_appname INT REFERENCES appname_directory(id),
-    repo_name TEXT NOT NULL,
-    repo_url TEXT NOT NULL
+    repo_name TEXT NOT NULL, -- (No existe en JSON, puedes derivar del repo_url)
+    repo_url TEXT NOT NULL -- repositoryUrl (JSON: ms.repositoryUrl)
 );
 
 CREATE TABLE env_directory (
     id SERIAL PRIMARY KEY,
-    env VARCHAR(100) NOT NULL
+    env VARCHAR(100) NOT NULL -- env (JSON: env)
 );
 
 CREATE TABLE country_directory (
     id SERIAL PRIMARY KEY,
-    country VARCHAR(100) NOT NULL
+    country VARCHAR(100) NOT NULL -- country (JSON: config.country)
 );
 
 CREATE TABLE label_directory (
     id SERIAL PRIMARY KEY,
-    app_label VARCHAR(100) NOT NULL
+    app_label VARCHAR(100) NOT NULL -- ocpLabel (JSON: config.ocpLabel)
 );
 
 CREATE TABLE app_type_directory (
     id SERIAL PRIMARY KEY,
-    app_type VARCHAR(100) NOT NULL
+    app_type VARCHAR(100) NOT NULL -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE pipeline_properties_directory (
     id SERIAL PRIMARY KEY,
-    securitygate BOOLEAN DEFAULT TRUE,
-    unittests BOOLEAN DEFAULT TRUE,
-    sonarqube BOOLEAN DEFAULT TRUE,
-    qualitygate BOOLEAN DEFAULT TRUE
+    securitygate BOOLEAN DEFAULT TRUE, -- (No existe en JSON, puedes dejar por defecto)
+    unittests BOOLEAN DEFAULT TRUE, -- (No existe en JSON, puedes dejar por defecto)
+    sonarqube BOOLEAN DEFAULT TRUE, -- (No existe en JSON, puedes dejar por defecto)
+    qualitygate BOOLEAN DEFAULT TRUE -- (No existe en JSON, puedes dejar por defecto)
 );
 
 CREATE TABLE runtime_directory (
     id SERIAL PRIMARY KEY,
-    runtime_name VARCHAR(100) NOT NULL,
-    version_path VARCHAR(100) NOT NULL
+    runtime_name VARCHAR(100) NOT NULL, -- (No existe en JSON, puedes derivar o dejar vacío)
+    version_path VARCHAR(100) NOT NULL -- baseImageVersion (JSON: config.baseImageVersion)
 );
 
 CREATE TABLE person_in_charge (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100),
-    email VARCHAR(100)
+    nombre VARCHAR(100), -- (No existe en JSON)
+    email VARCHAR(100) -- (No existe en JSON)
 );
 
 CREATE TABLE security_champion (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100),
-    email VARCHAR(100)
+    nombre VARCHAR(100), -- (No existe en JSON)
+    email VARCHAR(100) -- (No existe en JSON)
 );
 
 CREATE TABLE token_directory (
     id SERIAL PRIMARY KEY,
-    token TEXT,
-    namespace_name VARCHAR(100)
+    token TEXT, -- token (JSON: token)
+    namespace_name VARCHAR(100) -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE openshift_properties_directory (
     id SERIAL PRIMARY KEY,
-    secrets_enabled BOOLEAN DEFAULT TRUE,
-    configmap_enabled BOOLEAN DEFAULT TRUE,
-    volume_enabled BOOLEAN DEFAULT TRUE
+    secrets_enabled BOOLEAN DEFAULT TRUE, -- secrets_enabled (JSON: config.secrets[].secret)
+    configmap_enabled BOOLEAN DEFAULT TRUE, -- configmap_enabled (JSON: config.configMaps[].configMap)
+    volume_enabled BOOLEAN DEFAULT TRUE -- volume_enabled (JSON: config.volumes[].volume)
 );
 
 CREATE TABLE usage_directory (
     id SERIAL PRIMARY KEY,
-    usage VARCHAR(100)
+    usage VARCHAR(100) -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE image_directory (
     id SERIAL PRIMARY KEY,
-    image_name VARCHAR(100)
+    image_name VARCHAR(100) -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE path_directory (
     id SERIAL PRIMARY KEY,
-    volume_path VARCHAR(100)
+    volume_path VARCHAR(100) -- mountPath (JSON: config.volumes[].mountPath)
 );
 
 CREATE TABLE microservice_properties_directory (
     id SERIAL PRIMARY KEY,
     id_usage_directory INT REFERENCES usage_directory(id),
-    cpulimits VARCHAR(100),
-    cpurequest VARCHAR(100),
-    memorylimits VARCHAR(100),
-    memoryrequest VARCHAR(100),
-    replicas INT,
+    cpulimits VARCHAR(100), -- cpuLimits (JSON: config.resQuotas*.cpuLimits)
+    cpurequest VARCHAR(100), -- cpuRequest (JSON: config.resQuotas*.cpuRequest)
+    memorylimits VARCHAR(100), -- memoryLimits (JSON: config.resQuotas*.memoryLimits)
+    memoryrequest VARCHAR(100), -- memoryRequest (JSON: config.resQuotas*.memoryRequest)
+    replicas INT, -- replicas (JSON: config.resQuotas*.replicas)
     id_token_directory INT REFERENCES token_directory(id),
     id_openshift_properties_directory INT REFERENCES openshift_properties_directory(id),
     id_path_directory INT REFERENCES path_directory(id),
-    drs_enabled BOOLEAN DEFAULT FALSE,
+    drs_enabled BOOLEAN DEFAULT FALSE, -- (No existe en JSON, puedes dejar por defecto)
     id_image_directory INT REFERENCES image_directory(id)
 );
 
 CREATE TABLE datastage_properties_directory (
-    id SERIAL PRIMARY KEY
+    id SERIAL PRIMARY KEY -- (No existe en JSON)
 );
 
 CREATE TABLE database_properties_directory (
-    id SERIAL PRIMARY KEY
+    id SERIAL PRIMARY KEY -- (No existe en JSON)
 );
 
 CREATE TABLE was_properties_directory (
     id SERIAL PRIMARY KEY,
-    host VARCHAR(100),
-    instance_name VARCHAR(100),
-    context_root VARCHAR(100)
+    host VARCHAR(100), -- (No existe en JSON)
+    instance_name VARCHAR(100), -- (No existe en JSON)
+    context_root VARCHAR(100) -- (No existe en JSON)
 );
 
 CREATE TABLE pims_properties_directory (
     id SERIAL PRIMARY KEY,
-    nexus_url VARCHAR(100)
+    nexus_url VARCHAR(100) -- (No existe en JSON)
 );
 
 CREATE TABLE app_general_properties (
@@ -170,7 +169,7 @@ CREATE TABLE app_general_properties (
     id_app_type_directory INT REFERENCES app_type_directory(id),
     id_pipeline_properties_directory INT REFERENCES pipeline_properties_directory(id),
     id_runtime_directory INT REFERENCES runtime_directory(id),
-    sonarqubepath_exec VARCHAR(100),
+    sonarqubepath_exec VARCHAR(100), -- (No existe en JSON)
     id_microservice_directory INT REFERENCES microservice_properties_directory(id),
     id_datastage_properties_directory INT REFERENCES datastage_properties_directory(id),
     id_database_properties_directory INT REFERENCES database_properties_directory(id),
