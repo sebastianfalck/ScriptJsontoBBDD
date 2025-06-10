@@ -91,13 +91,19 @@ for filename in os.listdir(json_folder):
                 country_id = get_or_create_id(country_id_map, country, 'country_counter')
                 label = get_key_insensitive(config, 'ocpLabel')
                 label_id = get_or_create_id(label_id_map, label, 'label_counter')
+                # Buscar claves de resQuotas insensible a mayúsculas/minúsculas
+                def get_quota_key_insensitive(d, env):
+                    for k in d.keys():
+                        if k.lower() == f"resquotas{env}".lower():
+                            return d[k]
+                    return None
                 for env in ['dev', 'qa', 'master']:
                     env_id = get_or_create_id(env_id_map, env, 'env_counter')
                     token_key_matched, token_value = get_token_key(ms.get('tokenOcp'), env)
                     quotas = {
-                        'dev': get_key_insensitive(config, 'resQuotasdev'),
-                        'qa': get_key_insensitive(config, 'resQuotasqa'),
-                        'master': get_key_insensitive(config, 'resQuotasmaster'),
+                        'dev': get_quota_key_insensitive(config, 'dev'),
+                        'qa': get_quota_key_insensitive(config, 'qa'),
+                        'master': get_quota_key_insensitive(config, 'master'),
                     }
                     if not quotas['dev'] and not quotas['qa'] and quotas['master']:
                         quotas['dev'] = quotas['qa'] = quotas['master']
