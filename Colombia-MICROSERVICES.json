@@ -1,0 +1,68 @@
+{
+  "projects": [
+    {
+      "name": "WebviewCol Project",
+      "ms": [
+        {
+          "repositoryUrl": "https://github.com/empresa/webviewcol",
+          "buildConfigurationMode": "Release",
+          "tokenOcp": "ocTokenWebviewCol",
+          "config": {
+            "appName": "WebviewCol",
+            "country": "Colombia",
+            "ocpLabel": "labelWebviewCol",
+            "project": "webviewcol",
+            "baseImageVersion": "1.0",
+            "secrets": [
+              {"secretName": "secretWebviewCol", "secret": true}
+            ],
+            "configMaps": [
+              {"configMapName": "mapWebviewCol", "configMap": true}
+            ],
+            "volumes": [
+              {"mountPath": "/dataWebviewCol", "volume": true}
+            ],
+            "resQuotasdev": [
+              {"cpuLimits": "500m","cpuRequest": "250m","memoryLimits": "512Mi","memoryRequest": "256Mi","replicas": 2}
+            ],
+            "resQuotasqa": [
+              {"cpuLimits": "600m","cpuRequest": "300m","memoryLimits": "1Gi","memoryRequest": "512Mi","replicas": 3}
+            ],
+            "resQuotasmaster": [
+              {"cpuLimits": "700m","cpuRequest": "350m","memoryLimits": "2Gi","memoryRequest": "1Gi","replicas": 4}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ColNewApp Project",
+      "ms": [
+        {
+          "repositoryUrl": "https://github.com/empresa/colombianewapp",
+          "buildConfigurationMode": "Release",
+          "tokenOcp": "ocTokenColNewApp",
+          "config": {
+            "appName": "ColNewApp",
+            "country": "Colombia",
+            "ocpLabel": "labelColNewApp",
+            "project": "colombianewapp",
+            "baseImageVersion": "1.0",
+            "secrets": [
+              {"secretName": "secretColNewApp", "secret": true}
+            ],
+            "configMaps": [
+              {"configMapName": "mapColNewApp", "configMap": true}
+            ],
+            "volumes": [
+              {"mountPath": "/dataColNewApp", "volume": true}
+            ],
+            "resQuotasdev": [
+              {"cpuLimits": "800m","cpuRequest": "400m","memoryLimits": "2Gi","memoryRequest": "1Gi","replicas": 5}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

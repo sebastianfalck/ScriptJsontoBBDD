@@ -43,16 +43,32 @@ for filename in os.listdir(json_folder):
                     quotas['qa'] = quotas['master'] = quotas['dev']
 
                 for env in ['dev', 'qa', 'master']:
-                    env_quota = quotas[env]
+                    # Mapear ambiente a sufijo de token
+                    if env == 'dev':
+                        token_env = 'dev'
+                    elif env == 'qa':
+                        token_env = 'uat'
+                    elif env == 'master':
+                        token_env = 'prd'
+                    # Buscar el token sin discriminar mayúsculas/minúsculas
+                    token_env_name = f"{token_name}{token_env}"
+                    token_value = ''
+                    token_key_matched = ''
+                    for k, v in token_map.items():
+                        if k.lower() == token_env_name.lower():
+                            token_value = v
+                            token_key_matched = k
+                            break
+                    env_quota = quotas.get(env)
                     if env_quota:
                         quota_item = env_quota[0] if isinstance(env_quota, list) else env_quota
                         row = {
                             'source_file': filename,
-                            'type': filename.split('-')[0].lower(),  # Nueva columna 'type' extraída del nombre del archivo
+                            'type': filename.split('-')[0].lower(),
                             'project_name': project_name,
                             'repositoryUrl': ms.get('repositoryUrl'),
                             'buildConfigurationMode': ms.get('buildConfigurationMode'),
-                            'tokenOcp': token_name,
+                            'tokenOcp': token_key_matched,
                             'token': token_value,
                             'env': env,
                             'appName': config.get('appName'),
