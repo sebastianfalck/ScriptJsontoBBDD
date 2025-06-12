@@ -49,6 +49,35 @@ def get_or_create_id(mapping, value, counter_name):
         global_vars[counter_name] += 1
     return mapping[value]
 
+# Leer combinaciones predefinidas de openshift_properties_directory.csv
+openshift_map = {}
+openshift_csv_path = csv_folder / 'openshift_properties_directory.csv'
+if openshift_csv_path.exists():
+    with open(openshift_csv_path, newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            key = (row['secrets_enabled'] == 'True', row['configmap_enabled'] == 'True', row['volume_enabled'] == 'True')
+            openshift_map[key] = int(row['id'])
+else:
+    print('⚠️ openshift_properties_directory.csv no existe. Debe estar predefinido.')
+
+# Leer combinaciones predefinidas de pipeline_properties_directory.csv
+pipeline_map = {}
+pipeline_csv_path = csv_folder / 'pipeline_properties_directory.csv'
+if pipeline_csv_path.exists():
+    with open(pipeline_csv_path, newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            key = (
+                row['securitygate'] == 'True',
+                row['unittests'] == 'True',
+                row['sonarqube'] == 'True',
+                row['qualitygate'] == 'True',
+            )
+            pipeline_map[key] = int(row['id'])
+else:
+    print('⚠️ pipeline_properties_directory.csv no existe. Debe estar predefinido.')
+
 for filename in os.listdir(json_folder):
     if filename.endswith('.json') and filename != token_file.name:
         filepath = json_folder / filename
@@ -117,10 +146,15 @@ for filename in os.listdir(json_folder):
                             ms_id_map[ms_key] = ms_id_counter
                             ms_id_counter += 1
                         ms_id = ms_id_map[ms_key]
-                        # --- Normalización booleana de openshift_properties_directory ---
+                        # --- Buscar combinatoria en openshift_properties_directory predefinida ---
                         secrets_enabled = any(s.get('secret', False) for s in get_key_insensitive(config, 'secrets'))
                         configmap_enabled = any(c.get('configMap', False) for c in get_key_insensitive(config, 'configMaps'))
                         volume_enabled = any(v.get('volume', False) for v in get_key_insensitive(config, 'volumes'))
+                        openshift_key = (secrets_enabled, configmap_enabled, volume_enabled)
+                        id_openshift = openshift_map.get(openshift_key)
+                        if id_openshift is None:
+                            print(f"⚠️ Combinatoria {openshift_key} no encontrada en openshift_properties_directory.csv para {filename} {project_name} {app_name} {env}")
+                            id_openshift = ''
                         microservice_rows.append({
                             'id': ms_id,
                             'cpulimits': quota_item.get('cpuLimits'),
@@ -130,9 +164,7 @@ for filename in os.listdir(json_folder):
                             'replicas': quota_item.get('replicas'),
                             'token': token_value,
                             'tokenOcp': token_key_matched,
-                            'secrets_enabled': secrets_enabled,
-                            'configmap_enabled': configmap_enabled,
-                            'volume_enabled': volume_enabled,
+                            'id_openshift_properties_directory': id_openshift,
                         })
                         # app_general_properties row
                         general_rows.append({
@@ -195,6 +227,7 @@ app_headers_sql = [
     'id_label_directory',
     'id_app_type_directory',
     'id_pipeline_properties_directory',
+    'id_pipeline_general_properties_directory',
     'id_runtime_directory',
     'sonarqubepath_exec',
     'id_microservice_directory',
@@ -207,6 +240,11 @@ filtered_general_rows = []
 for i, r in enumerate(general_rows, 1):
     filtered_row = {k: r.get(k, '') for k in app_headers_sql}
     filtered_row['id'] = i
+    # Asignar id_pipeline_properties_directory según la combinación real o default (True, True, True, True)
+    pipeline_key = (True, True, True, True)  # Default
+    id_pipeline = pipeline_map.get(pipeline_key, 1)
+    filtered_row['id_pipeline_properties_directory'] = r.get('id_pipeline_properties_directory', id_pipeline)
+    filtered_row['id_pipeline_general_properties_directory'] = r.get('id_pipeline_general_properties_directory', filtered_row['id_pipeline_properties_directory'])
     filtered_general_rows.append(filtered_row)
 with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=app_headers_sql)
@@ -282,16 +320,18 @@ all_tables = {
         'id', 'nexus_url'
     ],
     'app_general_properties': [
-        'id', 'id_project_directory', 'id_app_directory', 'id_person_in_charge', 'id_security_champion', 'id_env_directory', 'id_country_directory', 'id_label_directory', 'id_app_type_directory', 'id_pipeline_properties_directory', 'id_runtime_directory', 'sonarqubepath_exec', 'id_microservice_directory', 'id_datastage_properties_directory', 'id_database_properties_directory', 'id_was_properties_directory', 'id_pims_properties_directory', 'project_name', 'appName', 'repositoryUrl', 'buildConfigurationMode', 'env', 'country', 'ocpLabel', 'project', 'baseImageVersion'
+        'id', 'id_project_directory', 'id_app_directory', 'id_person_in_charge', 'id_security_champion', 'id_env_directory', 'id_country_directory', 'id_label_directory', 'id_app_type_directory', 'id_pipeline_properties_directory', 'id_pipeline_general_properties_directory', 'id_runtime_directory', 'sonarqubepath_exec', 'id_microservice_directory', 'id_datastage_properties_directory', 'id_database_properties_directory', 'id_was_properties_directory', 'id_pims_properties_directory', 'project_name', 'appName', 'repositoryUrl', 'buildConfigurationMode', 'env', 'country', 'ocpLabel', 'project', 'baseImageVersion'
     ]
 }
 
 # Eliminar todos los CSVs existentes en la carpeta de salida antes de crear nuevos
 for f in csv_folder.glob('*.csv'):
-    try:
-        f.unlink()
-    except Exception as e:
-        print(f"No se pudo eliminar {f}: {e}")
+    # No borrar openshift_properties_directory.csv ni pipeline_properties_directory.csv
+    if f.name not in ['openshift_properties_directory.csv', 'pipeline_properties_directory.csv']:
+        try:
+            f.unlink()
+        except Exception as e:
+            print(f"No se pudo eliminar {f}: {e}")
 
 # Generar CSV vacío para cada tabla si no existe
 for table, headers in all_tables.items():
@@ -321,7 +361,7 @@ def write_directory_csv(filename, headers, id_map, extra_fields=None):
 
 write_directory_csv('project_directory.csv', ['id', 'project_name', 'project_acronym'], project_id_map, extra_fields={'project_acronym': lambda v: ''})
 write_directory_csv('appname_directory.csv', ['id', 'app'], appname_id_map)
-write_directory_csv('env_directory.csv', ['id', 'env'], env_id_map)
+write_directory_csv('env_directory.csv', ['id', 'env', 'reponexus'], env_id_map, extra_fields={'reponexus': lambda v: ''})
 write_directory_csv('country_directory.csv', ['id', 'country'], country_id_map)
 write_directory_csv('label_directory.csv', ['id', 'app_label'], label_id_map)
 
@@ -366,39 +406,34 @@ for row in microservice_rows:
     row.pop('configmap_enabled', None)
     row.pop('volume_enabled', None)
 
-# 3. Escribir openshift_properties_directory.csv correctamente
-with open(csv_folder / 'openshift_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=['id', 'secrets_enabled', 'configmap_enabled', 'volume_enabled'])
-    writer.writeheader()
-    writer.writerows(openshift_id_map.values())
+# 3. Reescribir microservice_properties_directory.csv sin los campos removidos
+def write_microservice_csv(rows):
+    ms_headers_sql = [
+        'id',
+        'id_usage_directory',
+        'cpulimits',
+        'cpurequest',
+        'memorylimits',
+        'memoryrequest',
+        'replicas',
+        'id_token_directory',
+        'id_openshift_properties_directory',
+        'id_path_directory',
+        'drs_enabled',
+        'id_image_directory',
+    ]
+    filtered_microservice_rows = []
+    for r in rows:
+        filtered_row = {k: r.get(k, '') for k in ms_headers_sql}
+        filtered_microservice_rows.append(filtered_row)
+    with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
+        writer.writeheader()
+        writer.writerows(filtered_microservice_rows)
 
-# 4. Reescribir microservice_properties_directory.csv sin los campos removidos
-ms_headers_sql = [
-    'id',
-    'id_usage_directory',
-    'cpulimits',
-    'cpurequest',
-    'memorylimits',
-    'memoryrequest',
-    'replicas',
-    'id_token_directory',
-    'id_openshift_properties_directory',
-    'id_path_directory',
-    'drs_enabled',
-    'id_image_directory',
-    'token',
-    'tokenOcp'
-]
-filtered_microservice_rows = []
-for r in microservice_rows:
-    filtered_row = {k: r.get(k, '') for k in ms_headers_sql}
-    filtered_microservice_rows.append(filtered_row)
-with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
-    writer.writeheader()
-    writer.writerows(filtered_microservice_rows)
+write_microservice_csv(microservice_rows)
 
-print("✅ Normalización de openshift_properties_directory y referencia por id aplicada correctamente.")
+print("✅ microservice_properties_directory.csv ahora solo contiene los campos de la tabla SQL y los IDs correctos.")
 
 # ========== AJUSTE: Normalizar pipeline_properties_directory y referenciar su id ==========
 # 1. Crear combinaciones posibles de (securitygate, unittests, sonarqube, qualitygate)
@@ -482,3 +517,26 @@ with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='
     writer.writerows(filtered_general_rows)
 
 print("✅ app_general_properties.csv actualizado con id_app_type_directory y id_pipeline_properties_directory.")
+
+# ========== NUEVO: Poblar token_directory.csv con los valores de token.json ==========
+token_rows = []
+for i, (token_name, token_value) in enumerate(token_map.items(), 1):
+    # Derivar namespace_name si es posible (por ejemplo, parte después de 'ocToken' y antes de env)
+    ns = token_name.replace('ocToken', '')
+    # Quitar sufijos de ambiente comunes
+    for env in ['dev', 'uat', 'prd']:
+        if ns.lower().endswith(env):
+            ns = ns[:-(len(env))]
+    namespace_name = ns if ns else ''
+    token_rows.append({
+        'id': i,
+        'token': token_value,
+        'token_name': token_name,
+        'namespace_name': namespace_name
+    })
+with open(csv_folder / 'token_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'token', 'token_name', 'namespace_name'])
+    writer.writeheader()
+    writer.writerows(token_rows)
+
+print("✅ token_directory.csv generado y poblado correctamente.")

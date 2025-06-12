@@ -33,7 +33,6 @@ DROP TABLE IF EXISTS image_directory;
 CREATE TABLE project_directory (
     id SERIAL PRIMARY KEY,
     project_name VARCHAR(100) NOT NULL, -- project_name (JSON: project_name)
-    project_acronym VARCHAR(100) NOT NULL -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
 CREATE TABLE appname_directory (
@@ -50,7 +49,8 @@ CREATE TABLE app_directory (
 
 CREATE TABLE env_directory (
     id SERIAL PRIMARY KEY,
-    env VARCHAR(100) NOT NULL -- env (JSON: env)
+    env VARCHAR(100) NOT NULL, -- env (JSON: env)
+    reponexus TEXT
 );
 
 CREATE TABLE country_directory (
@@ -97,6 +97,7 @@ CREATE TABLE security_champion (
 CREATE TABLE token_directory (
     id SERIAL PRIMARY KEY,
     token TEXT, -- token (JSON: token)
+    token_name TEXT,
     namespace_name VARCHAR(100) -- (No existe en JSON, puedes derivar o dejar vacío)
 );
 
@@ -168,7 +169,7 @@ CREATE TABLE app_general_properties (
     id_label_directory INT REFERENCES label_directory(id),
     id_app_type_directory INT REFERENCES app_type_directory(id),
     id_pipeline_properties_directory INT REFERENCES pipeline_properties_directory(id),
-    id_runtime_directory INT REFERENCES runtime_directory(id),
+    id_pipeline_general_properties_directory INT REFERENCES pipeline_properties_directory(id),    
     sonarqubepath_exec VARCHAR(100), -- (No existe en JSON)
     id_microservice_directory INT REFERENCES microservice_properties_directory(id),
     id_datastage_properties_directory INT REFERENCES datastage_properties_directory(id),
