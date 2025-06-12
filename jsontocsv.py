@@ -160,6 +160,10 @@ for filename in os.listdir(json_folder):
                     env_quota = quotas.get(env)
                     if env_quota:
                         quota_item = env_quota[0] if isinstance(env_quota, list) else env_quota
+                        # --- AJUSTE: Si replicas no existe, ponerle 1 ---
+                        replicas_value = quota_item.get('replicas')
+                        if replicas_value is None:
+                            replicas_value = 1
                         ms_key = (filename, project_name, app_name, env)
                         if ms_key not in ms_id_map:
                             ms_id_map[ms_key] = ms_id_counter
@@ -193,7 +197,7 @@ for filename in os.listdir(json_folder):
                             'cpurequest': quota_item.get('cpuRequest'),
                             'memorylimits': quota_item.get('memoryLimits'),
                             'memoryrequest': quota_item.get('memoryRequest'),
-                            'replicas': quota_item.get('replicas'),
+                            'replicas': replicas_value,
                             'id_token_directory': id_token_directory,
                             'id_openshift_properties_directory': id_openshift,
                             'id_path_directory': id_path_directory,
