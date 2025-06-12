@@ -131,8 +131,8 @@ for filename in os.listdir(json_folder):
                 label_id = get_or_create_id(label_id_map, label, 'label_counter')
                 # --- NUEVO: usage_directory ---
                 usage = get_key_insensitive(config, 'usage')
-                if usage is None:
-                    usage = ''
+                if not usage:
+                    usage = 'internal'
                 if usage not in usage_id_map:
                     usage_id_map[usage] = usage_counter
                     usage_counter += 1
