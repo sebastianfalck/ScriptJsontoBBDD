@@ -26,8 +26,11 @@ app_dir_id_map = {}
 env_id_map = {}
 country_id_map = {}
 label_id_map = {}
+usage_id_map = {}
+token_id_map = {}
+path_id_map = {}
 
-project_counter = appname_counter = app_dir_counter = env_counter = country_counter = label_counter = 1
+project_counter = appname_counter = app_dir_counter = env_counter = country_counter = label_counter = usage_counter = path_counter = 1
 
 def get_token_key(token_name, env):
     if env == 'dev':
@@ -48,6 +51,12 @@ def get_or_create_id(mapping, value, counter_name):
         mapping[value] = global_vars[counter_name]
         global_vars[counter_name] += 1
     return mapping[value]
+
+# Construir token_id_map para búsqueda rápida de id_token_directory
+with open(csv_folder / 'token_directory.csv', newline='', encoding='utf-8') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        token_id_map[(row['token'], row['token_name'])] = int(row['id'])
 
 # Leer combinaciones predefinidas de openshift_properties_directory.csv
 openshift_map = {}
@@ -120,6 +129,14 @@ for filename in os.listdir(json_folder):
                 country_id = get_or_create_id(country_id_map, country, 'country_counter')
                 label = get_key_insensitive(config, 'ocpLabel')
                 label_id = get_or_create_id(label_id_map, label, 'label_counter')
+                # --- NUEVO: usage_directory ---
+                usage = get_key_insensitive(config, 'usage')
+                if usage is None:
+                    usage = ''
+                if usage not in usage_id_map:
+                    usage_id_map[usage] = usage_counter
+                    usage_counter += 1
+                id_usage_directory = usage_id_map[usage]
                 # Buscar claves de resQuotas insensible a mayúsculas/minúsculas
                 def get_quota_key_insensitive(d, env):
                     for k in d.keys():
@@ -129,6 +146,8 @@ for filename in os.listdir(json_folder):
                 for env in ['dev', 'qa', 'master']:
                     env_id = get_or_create_id(env_id_map, env, 'env_counter')
                     token_key_matched, token_value = get_token_key(ms.get('tokenOcp'), env)
+                    # --- NUEVO: id_token_directory ---
+                    id_token_directory = token_id_map.get((token_value, token_key_matched), '')
                     quotas = {
                         'dev': get_quota_key_insensitive(config, 'dev'),
                         'qa': get_quota_key_insensitive(config, 'qa'),
@@ -157,16 +176,28 @@ for filename in os.listdir(json_folder):
                             id_openshift = ''
                         # Extraer baseImageVersion para la imagen
                         base_image_version = get_key_insensitive(config, 'baseImageVersion')
+                        # --- NUEVO: path_directory ---
+                        # Buscar el primer mountPath de volumes (si existe)
+                        volumes = get_key_insensitive(config, 'volumes')
+                        volume_path = ''
+                        if volumes and isinstance(volumes, list) and len(volumes) > 0:
+                            volume_path = volumes[0].get('mountPath', '')
+                        if volume_path not in path_id_map:
+                            path_id_map[volume_path] = path_counter
+                            path_counter += 1
+                        id_path_directory = path_id_map[volume_path]
                         microservice_rows.append({
                             'id': ms_id,
+                            'id_usage_directory': id_usage_directory,
                             'cpulimits': quota_item.get('cpuLimits'),
                             'cpurequest': quota_item.get('cpuRequest'),
                             'memorylimits': quota_item.get('memoryLimits'),
                             'memoryrequest': quota_item.get('memoryRequest'),
                             'replicas': quota_item.get('replicas'),
-                            'token': token_value,
-                            'tokenOcp': token_key_matched,
+                            'id_token_directory': id_token_directory,
                             'id_openshift_properties_directory': id_openshift,
+                            'id_path_directory': id_path_directory,
+                            'drs_enabled': False,
                             'baseImageVersion': base_image_version
                         })
                         # app_general_properties row
@@ -414,8 +445,6 @@ for row in microservice_rows:
             'volume_enabled': key[2]
         }
         openshift_counter += 1
-    row['id_openshift_properties_directory'] = openshift_map[key]
-
 # 2. Eliminar los campos de microservice_properties_directory que no corresponden
 for row in microservice_rows:
     row.pop('secrets_enabled', None)
