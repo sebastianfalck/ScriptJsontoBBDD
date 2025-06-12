@@ -155,6 +155,8 @@ for filename in os.listdir(json_folder):
                         if id_openshift is None:
                             print(f"⚠️ Combinatoria {openshift_key} no encontrada en openshift_properties_directory.csv para {filename} {project_name} {app_name} {env}")
                             id_openshift = ''
+                        # Extraer baseImageVersion para la imagen
+                        base_image_version = get_key_insensitive(config, 'baseImageVersion')
                         microservice_rows.append({
                             'id': ms_id,
                             'cpulimits': quota_item.get('cpuLimits'),
@@ -165,6 +167,7 @@ for filename in os.listdir(json_folder):
                             'token': token_value,
                             'tokenOcp': token_key_matched,
                             'id_openshift_properties_directory': id_openshift,
+                            'baseImageVersion': base_image_version
                         })
                         # app_general_properties row
                         general_rows.append({
@@ -185,8 +188,27 @@ for filename in os.listdir(json_folder):
                             'baseImageVersion': get_key_insensitive(config, 'baseImageVersion'),
                         })
 
+# ========== LÓGICA PARA id_image_directory usando baseImageVersion ========== 
+image_id_map = {}
+image_counter = 1
+for row in microservice_rows:
+    base_image_version = row.get('baseImageVersion', '')
+    if base_image_version and base_image_version not in image_id_map:
+        image_id_map[base_image_version] = image_counter
+        image_counter += 1
+    row['id_image_directory'] = image_id_map.get(base_image_version, '')
+
+# Escribir image_directory.csv
+image_rows = []
+for name, id_ in image_id_map.items():
+    image_rows.append({'id': id_, 'image_name': name})
+with open(csv_folder / 'image_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'image_name'])
+    writer.writeheader()
+    writer.writerows(image_rows)
+
 # Escribir microservice_properties_directory.csv con el orden de columnas de la tabla SQL
-ms_headers = [
+ms_headers_sql = [
     'id',
     'id_usage_directory',
     'cpulimits',
@@ -199,21 +221,15 @@ ms_headers = [
     'id_path_directory',
     'drs_enabled',
     'id_image_directory',
-    # Extras para trazabilidad
-    'token',
-    'tokenOcp',
-    'secrets_enabled',
-    'configmap_enabled',
-    'volume_enabled',
 ]
+filtered_microservice_rows = []
 for r in microservice_rows:
-    for k in ms_headers:
-        if k not in r:
-            r[k] = ''
+    filtered_row = {k: r.get(k, '') for k in ms_headers_sql}
+    filtered_microservice_rows.append(filtered_row)
 with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=ms_headers)
+    writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
     writer.writeheader()
-    writer.writerows(microservice_rows)
+    writer.writerows(filtered_microservice_rows)
 
 # Escribir app_general_properties.csv SOLO con los campos de la tabla SQL y los IDs correctos
 app_headers_sql = [
@@ -388,7 +404,7 @@ openshift_map = {}
 openshift_id_map = {}
 openshift_counter = 1
 for row in microservice_rows:
-    key = (bool(row['secrets_enabled']), bool(row['configmap_enabled']), bool(row['volume_enabled']))
+    key = (bool(row.get('secrets_enabled')), bool(row.get('configmap_enabled')), bool(row.get('volume_enabled')))
     if key not in openshift_map:
         openshift_map[key] = openshift_counter
         openshift_id_map[openshift_counter] = {
@@ -407,33 +423,30 @@ for row in microservice_rows:
     row.pop('volume_enabled', None)
 
 # 3. Reescribir microservice_properties_directory.csv sin los campos removidos
-def write_microservice_csv(rows):
-    ms_headers_sql = [
-        'id',
-        'id_usage_directory',
-        'cpulimits',
-        'cpurequest',
-        'memorylimits',
-        'memoryrequest',
-        'replicas',
-        'id_token_directory',
-        'id_openshift_properties_directory',
-        'id_path_directory',
-        'drs_enabled',
-        'id_image_directory',
-    ]
-    filtered_microservice_rows = []
-    for r in rows:
-        filtered_row = {k: r.get(k, '') for k in ms_headers_sql}
-        filtered_microservice_rows.append(filtered_row)
-    with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
-        writer.writeheader()
-        writer.writerows(filtered_microservice_rows)
+ms_headers_sql = [
+    'id',
+    'id_usage_directory',
+    'cpulimits',
+    'cpurequest',
+    'memorylimits',
+    'memoryrequest',
+    'replicas',
+    'id_token_directory',
+    'id_openshift_properties_directory',
+    'id_path_directory',
+    'drs_enabled',
+    'id_image_directory',
+]
+filtered_microservice_rows = []
+for r in microservice_rows:
+    filtered_row = {k: r.get(k, '') for k in ms_headers_sql}
+    filtered_microservice_rows.append(filtered_row)
+with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
+    writer.writeheader()
+    writer.writerows(filtered_microservice_rows)
 
-write_microservice_csv(microservice_rows)
-
-print("✅ microservice_properties_directory.csv ahora solo contiene los campos de la tabla SQL y los IDs correctos.")
+print("✅ microservice_properties_directory.csv ahora contiene los campos de la tabla SQL y los IDs correctos.")
 
 # ========== AJUSTE: Normalizar pipeline_properties_directory y referenciar su id ==========
 # 1. Crear combinaciones posibles de (securitygate, unittests, sonarqube, qualitygate)
@@ -534,9 +547,31 @@ for i, (token_name, token_value) in enumerate(token_map.items(), 1):
         'token_name': token_name,
         'namespace_name': namespace_name
     })
+# Siempre sobrescribir y asegurar el orden correcto de columnas
 with open(csv_folder / 'token_directory.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=['id', 'token', 'token_name', 'namespace_name'])
     writer.writeheader()
     writer.writerows(token_rows)
 
-print("✅ token_directory.csv generado y poblado correctamente.")
+print("✅ token_directory.csv generado y poblado correctamente con columnas id, token, token_name, namespace_name.")
+
+# ========== LÓGICA PARA id_image_directory usando baseImageVersion ==========
+image_id_map = {}
+image_counter = 1
+for row in microservice_rows:
+    base_image_version = row.get('baseImageVersion', '')
+    if base_image_version and base_image_version not in image_id_map:
+        image_id_map[base_image_version] = image_counter
+        image_counter += 1
+    row['id_image_directory'] = image_id_map.get(base_image_version, '')
+
+# Escribir image_directory.csv
+image_rows = []
+for name, id_ in image_id_map.items():
+    image_rows.append({'id': id_, 'image_name': name})
+with open(csv_folder / 'image_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'image_name'])
+    writer.writeheader()
+    writer.writerows(image_rows)
+
+print("✅ image_directory.csv generado y poblado correctamente.")
