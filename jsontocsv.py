@@ -604,3 +604,14 @@ with open(csv_folder / 'image_directory.csv', 'w', newline='', encoding='utf-8')
     writer.writerows(image_rows)
 
 print("✅ image_directory.csv generado y poblado correctamente.")
+
+# Escribir usage_directory.csv
+usage_rows = []
+for usage, id_ in usage_id_map.items():
+    usage_rows.append({'id': id_, 'usage': usage})
+with open(csv_folder / 'usage_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'usage'])
+    writer.writeheader()
+    writer.writerows(usage_rows)
+
+print("✅ usage_directory.csv generado y poblado correctamente.")
