@@ -212,6 +212,8 @@ for filename in os.listdir(json_folder):
                     usage_id_map[usage] = usage_counter
                     usage_counter += 1
                 id_usage_directory = usage_id_map[usage]
+                # Obtener o crear el id del proyecto para project_directory
+                project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
                 # Buscar claves de resQuotas insensible a mayúsculas/minúsculas
                 def get_quota_key_insensitive(d, env):
                     for k in d.keys():
@@ -282,7 +284,7 @@ for filename in os.listdir(json_folder):
                         # app_general_properties row
                         general_rows.append({
                             'id_microservice_directory': ms_id,
-                            'id_project_directory': project_id_map.get(project_name, ''),
+                            'id_project_directory': project_id,
                             'id_app_directory': app_dir_id,
                             'id_env_directory': env_id,
                             'id_country_directory': country_id,
