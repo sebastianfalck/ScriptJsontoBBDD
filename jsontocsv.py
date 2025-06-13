@@ -254,7 +254,6 @@ ms_headers_sql = [
     'id_token_directory',
     'id_openshift_properties_directory',
     'id_path_directory',
-    'drs_enabled',
     'id_image_directory',
 ]
 filtered_microservice_rows = []
@@ -467,7 +466,6 @@ ms_headers_sql = [
     'id_token_directory',
     'id_openshift_properties_directory',
     'id_path_directory',
-    'drs_enabled',
     'id_image_directory',
 ]
 filtered_microservice_rows = []
@@ -619,3 +617,67 @@ with open(csv_folder / 'usage_directory.csv', 'w', newline='', encoding='utf-8')
     writer.writerows(usage_rows)
 
 print("✅ usage_directory.csv generado y poblado correctamente.")
+
+# ========== LÓGICA PARA microservice_drs_config ==========
+ms_drs_config_rows = []
+ms_drs_config_id_map = {}
+ms_drs_config_counter = 1
+for r in microservice_rows:
+    drs_enabled = False
+    drs_token = ''
+    drs_namespace = ''
+    # Buscar el config original asociado a este microservicio (solo para master)
+    config_found = False
+    for g in general_rows:
+        if g.get('id_microservice_directory') == r['id']:
+            config = g.get('config', {})
+            if isinstance(config, str):
+                try:
+                    config = json.loads(config)
+                except Exception:
+                    config = {}
+            # Solo si existe la variable drsDeployEnable en el config
+            if 'drsDeployEnable' in config:
+                drs_enabled = config.get('drsDeployEnable', False)
+                drs_token = config.get('drs_token', '')
+                drs_namespace = config.get('drs_namespace', '')
+                config_found = True
+            break
+    # Si no se encontró la variable, dejar todo en False/vacío
+    ms_drs_config_rows.append({
+        'id': ms_drs_config_counter,
+        'drs_enabled': drs_enabled,
+        'drs_token': drs_token,
+        'drs_namespace': drs_namespace
+    })
+    ms_drs_config_id_map[r['id']] = ms_drs_config_counter
+    ms_drs_config_counter += 1
+# Escribir microservice_drs_config.csv
+with open(csv_folder / 'microservice_drs_config.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'drs_enabled', 'drs_token', 'drs_namespace'])
+    writer.writeheader()
+    writer.writerows(ms_drs_config_rows)
+# ========== AJUSTE microservice_properties_directory: eliminar drs_enabled y agregar id_drs_config ==========
+ms_headers_sql = [
+    'id',
+    'id_usage_directory',
+    'cpulimits',
+    'cpurequest',
+    'memorylimits',
+    'memoryrequest',
+    'replicas',
+    'id_token_directory',
+    'id_openshift_properties_directory',
+    'id_path_directory',
+    'id_image_directory',
+    'id_drs_config',
+]
+filtered_microservice_rows = []
+for r in microservice_rows:
+    filtered_row = {k: r.get(k, '') for k in ms_headers_sql if k != 'id_drs_config'}
+    filtered_row['id_drs_config'] = ms_drs_config_id_map.get(r['id'], '')
+    filtered_microservice_rows.append(filtered_row)
+with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
+    writer.writeheader()
+    writer.writerows(filtered_microservice_rows)

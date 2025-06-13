@@ -123,19 +123,26 @@ CREATE TABLE path_directory (
     volume_path VARCHAR(100) -- mountPath (JSON: config.volumes[].mountPath)
 );
 
+CREATE TABLE microservice_drs_config (
+    id SERIAL PRIMARY KEY,
+    drs_enabled BOOLEAN NOT NULL DEFAULT false,
+    drs_token TEXT,
+    drs_namespace TEXT
+);
+
 CREATE TABLE microservice_properties_directory (
     id SERIAL PRIMARY KEY,
     id_usage_directory INT REFERENCES usage_directory(id),
-    cpulimits VARCHAR(100), -- cpuLimits (JSON: config.resQuotas*.cpuLimits)
-    cpurequest VARCHAR(100), -- cpuRequest (JSON: config.resQuotas*.cpuRequest)
-    memorylimits VARCHAR(100), -- memoryLimits (JSON: config.resQuotas*.memoryLimits)
-    memoryrequest VARCHAR(100), -- memoryRequest (JSON: config.resQuotas*.memoryRequest)
-    replicas INT, -- replicas (JSON: config.resQuotas*.replicas)
+    cpulimits VARCHAR(100),
+    cpurequest VARCHAR(100),
+    memorylimits VARCHAR(100),
+    memoryrequest VARCHAR(100),
+    replicas INT,
     id_token_directory INT REFERENCES token_directory(id),
     id_openshift_properties_directory INT REFERENCES openshift_properties_directory(id),
     id_path_directory INT REFERENCES path_directory(id),
-    drs_enabled BOOLEAN DEFAULT FALSE, -- (No existe en JSON, puedes dejar por defecto)
-    id_image_directory INT REFERENCES image_directory(id)
+    id_image_directory INT REFERENCES image_directory(id),
+    id_drs_config INT REFERENCES microservice_drs_config(id)
 );
 
 CREATE TABLE datastage_properties_directory (
