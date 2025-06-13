@@ -664,6 +664,15 @@ with open(csv_folder / 'usage_directory.csv', 'w', newline='', encoding='utf-8')
     writer.writeheader()
     writer.writerows(usage_rows)
 
+# ========== ESCRIBIR path_directory.csv CON LOS VALORES ÚNICOS DE MOUNTPATH EXTRAÍDOS ==========
+path_rows = []
+for path, id_ in path_id_map.items():
+    path_rows.append({'id': id_, 'volume_path': path})
+with open(csv_folder / 'path_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id', 'volume_path'])
+    writer.writeheader()
+    writer.writerows(path_rows)
+
 # ========== LÓGICA PARA microservice_drs_config ==========
 ms_drs_config_rows = []
 ms_drs_config_id_map = {}
@@ -761,4 +770,5 @@ for g in general_rows:
     if pipeline_id is None:
         print(f"⚠️ Combinación de pipeline no encontrada para microservicio {g.get('appName')}, usando id=1")
         pipeline_id = 1
+    # Corregir la clave: debe ser 'id_microservice_directory' (no 'id_microservicio_directory')
     pipeline_id_map_micro[g['id_microservice_directory']] = pipeline_id
