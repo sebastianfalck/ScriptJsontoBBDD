@@ -298,6 +298,7 @@ for filename in os.listdir(json_folder):
                             'ocpLabel': label,
                             'project': get_key_insensitive(config, 'project'),
                             'baseImageVersion': get_key_insensitive(config, 'baseImageVersion'),
+                            'config': ms.get('config', '')  # Guardar el string original para DRS
                         })
 
 # ========== LÓGICA PARA id_image_directory usando baseImageVersion ========== 
@@ -671,24 +672,23 @@ for r in microservice_rows:
     drs_enabled = False
     drs_token = ''
     drs_namespace = ''
-    # Buscar el config original asociado a este microservicio (solo para master)
+    # Buscar el config original asociado a este microservicio (parseando el string si es necesario)
     config_found = False
     for g in general_rows:
         if g.get('id_microservice_directory') == r['id']:
-            config = g.get('config', {})
-            if isinstance(config, str):
+            config_str = g.get('config', '')
+            config = {}
+            if isinstance(config_str, str):
                 try:
-                    config = json.loads(config)
+                    config = json.loads(config_str)
                 except Exception:
                     config = {}
-            # Solo si existe la variable drsDeployEnable en el config
-            if 'drsDeployEnable' in config:
+            if isinstance(config, dict):
                 drs_enabled = config.get('drsDeployEnable', False)
                 drs_token = config.get('drs_token', '')
                 drs_namespace = config.get('drs_namespace', '')
-                config_found = True
+            config_found = True
             break
-    # Si no se encontró la variable, dejar todo en False/vacío
     ms_drs_config_rows.append({
         'id': ms_drs_config_counter,
         'drs_enabled': drs_enabled,

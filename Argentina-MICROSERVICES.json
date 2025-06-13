@@ -7,7 +7,7 @@
           "repositoryUrl": "https://github.com/empresa/argnewapp",
           "buildConfigurationMode": "Release",
           "tokenOcp": "ocTokenArgNewApp",
-          "config": "{\"appName\":\"ArgNewApp\",\"country\":\"Argentina\",\"ocpLabel\":\"labelArgNewApp\",\"project\":\"argnewapp\",\"baseImageVersion\":\"1.0\",\"usage\":\"external\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretArgNewApp\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapArgNewApp\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataArgNewApp\"}],\"resQuotasdev\":[{\"cpuLimits\":\"500m\",\"cpuRequest\":\"250m\",\"memoryLimits\":\"512Mi\",\"memoryRequest\":\"256Mi\",\"replicas\":2}],\"resQuotasqa\":[{\"cpuLimits\":\"600m\",\"cpuRequest\":\"300m\",\"memoryLimits\":\"1Gi\",\"memoryRequest\":\"512Mi\",\"replicas\":3}],\"resQuotasmaster\":[{\"cpuLimits\":\"700m\",\"cpuRequest\":\"350m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":4}]}"
+          "config": "{\"appName\":\"ArgNewApp\",\"country\":\"Argentina\",\"ocpLabel\":\"labelArgNewApp\",\"project\":\"argnewapp\",\"baseImageVersion\":\"1.0\",\"usage\":\"external\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretArgNewApp\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapArgNewApp\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataArgNewApp\"}],\"resQuotasdev\":[{\"cpuLimits\":\"500m\",\"cpuRequest\":\"250m\",\"memoryLimits\":\"512Mi\",\"memoryRequest\":\"256Mi\",\"replicas\":2}],\"resQuotasqa\":[{\"cpuLimits\":\"600m\",\"cpuRequest\":\"300m\",\"memoryLimits\":\"1Gi\",\"memoryRequest\":\"512Mi\",\"replicas\":3}],\"resQuotasmaster\":[{\"cpuLimits\":\"700m\",\"cpuRequest\":\"350m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":4}],\"drsDeployEnable\":true}"
         }
       ]
     },
@@ -18,7 +18,7 @@
           "repositoryUrl": "https://github.com/empresa/melilamc",
           "buildConfigurationMode": "Release",
           "tokenOcp": "ocTokenMelilamc",
-          "config": "{\"appName\":\"Melilamc\",\"country\":\"Argentina\",\"ocpLabel\":\"labelMelilamc\",\"project\":\"melilamc\",\"baseImageVersion\":\"1.0\",\"usage\":\"internal\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretMelilamc\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapMelilamc\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataMelilamc\"}],\"resQuotasdev\":[{\"cpuLimits\":\"800m\",\"cpuRequest\":\"400m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":5}]}"
+          "config": "{\"appName\":\"Melilamc\",\"country\":\"Argentina\",\"ocpLabel\":\"labelMelilamc\",\"project\":\"melilamc\",\"baseImageVersion\":\"1.0\",\"usage\":\"internal\",\"secrets\":[{\"secret\":true,\"secretName\":\"secretMelilamc\"}],\"configMaps\":[{\"configMap\":true,\"configMapName\":\"mapMelilamc\"}],\"volumes\":[{\"volume\":true,\"mountPath\":\"/dataMelilamc\"}],\"resQuotasdev\":[{\"cpuLimits\":\"800m\",\"cpuRequest\":\"400m\",\"memoryLimits\":\"2Gi\",\"memoryRequest\":\"1Gi\",\"replicas\":5}],\"drsDeployEnable\":false}"
         }
       ]
     }
