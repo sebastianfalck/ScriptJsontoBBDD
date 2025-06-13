@@ -2,6 +2,7 @@ import os
 import json
 import csv
 from pathlib import Path
+from itertools import product
 
 # Carpeta donde se guardarán los CSVs
 csv_folder = Path('csv_output')
@@ -290,11 +291,9 @@ filtered_general_rows = []
 for i, r in enumerate(general_rows, 1):
     filtered_row = {k: r.get(k, '') for k in app_headers_sql}
     filtered_row['id'] = i
-    # Asignar id_pipeline_properties_directory según la combinación real o default (True, True, True, True)
-    pipeline_key = (True, True, True, True)  # Default
-    id_pipeline = pipeline_map.get(pipeline_key, 1)
-    filtered_row['id_pipeline_properties_directory'] = r.get('id_pipeline_properties_directory', id_pipeline)
-    filtered_row['id_pipeline_general_properties_directory'] = r.get('id_pipeline_general_properties_directory', filtered_row['id_pipeline_properties_directory'])
+    # Asignar id_pipeline_properties_directory según la combinación real
+    filtered_row['id_pipeline_properties_directory'] = r.get('id_pipeline_properties_directory', 1)
+    filtered_row['id_pipeline_general_properties_directory'] = filtered_row['id_pipeline_properties_directory']
     filtered_general_rows.append(filtered_row)
 with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=app_headers_sql)
@@ -481,49 +480,36 @@ print("✅ microservice_properties_directory.csv ahora contiene los campos de la
 
 # ========== AJUSTE: Normalizar pipeline_properties_directory y referenciar su id ==========
 # 1. Crear combinaciones posibles de (securitygate, unittests, sonarqube, qualitygate)
-pipeline_combinations = [
-    (True, True, True, True),
-    (True, True, True, False),
-    (True, True, False, True),
-    (True, False, True, True),
-    (False, True, True, True),
-    (False, False, False, False),
-    # ...puedes agregar más combinaciones si lo necesitas...
-]
-pipeline_map = {}
+pipeline_fields = ['securitygate', 'unittests', 'sonarqube', 'qualitygate']
+pipeline_combinations = list(product([True, False], repeat=4))
 pipeline_id_map = {}
-pipeline_counter = 1
-for combo in pipeline_combinations:
-    pipeline_map[combo] = pipeline_counter
-    pipeline_id_map[pipeline_counter] = {
-        'id': pipeline_counter,
-        'securitygate': combo[0],
-        'unittests': combo[1],
-        'sonarqube': combo[2],
-        'qualitygate': combo[3]
-    }
-    pipeline_counter += 1
+for idx, combo in enumerate(pipeline_combinations, 1):
+    pipeline_id_map[combo] = idx
 
-def get_pipeline_id(securitygate=None, unittests=None, sonarqube=None, qualitygate=None):
-    # Si algún valor es None, usar True (por defecto en modelo.sql)
-    combo = (
-        True if securitygate is None else securitygate,
-        True if unittests is None else unittests,
-        True if sonarqube is None else sonarqube,
-        True if qualitygate is None else qualitygate,
-    )
-    return pipeline_map.get(combo, 1)  # Default to id=1 (all True)
+# Escribir pipeline_properties_directory.csv con todas las combinaciones
+with open(csv_folder / 'pipeline_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id'] + pipeline_fields)
+    writer.writeheader()
+    for idx, combo in enumerate(pipeline_combinations, 1):
+        row = {'id': idx}
+        for i, field in enumerate(pipeline_fields):
+            row[field] = combo[i]
+        writer.writerow(row)
+
+# Función para obtener el id de la combinación de pipeline para un microservicio
+# Si no se encuentra, retorna None
+
+def get_pipeline_id_for_microservice(securitygate, unittests, sonarqube, qualitygate):
+    combo = (securitygate, unittests, sonarqube, qualitygate)
+    return pipeline_id_map.get(combo)
 
 # 2. En general_rows, asignar id_pipeline_properties_directory
 for row in general_rows:
     # Aquí podrías detectar valores reales desde el JSON si existieran
-    row['id_pipeline_properties_directory'] = get_pipeline_id()
+    row['id_pipeline_properties_directory'] = get_pipeline_id_for_microservice(True, True, True, True)
 
 # 3. Escribir pipeline_properties_directory.csv correctamente
-with open(csv_folder / 'pipeline_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=['id', 'securitygate', 'unittests', 'sonarqube', 'qualitygate'])
-    writer.writeheader()
-    writer.writerows(pipeline_id_map.values())
+# (Ya se escribe correctamente arriba con el bucle for idx, combo in enumerate...)
 
 print("✅ Normalización de pipeline_properties_directory y referencia por id aplicada correctamente.")
 
@@ -681,3 +667,40 @@ with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='',
     writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
     writer.writeheader()
     writer.writerows(filtered_microservice_rows)
+
+# ========== ASIGNAR id_pipeline_properties_directory SEGÚN VALORES REALES DEL MICROSERVICIO ==========
+# Para cada microservicio, buscar en su config los valores de securitygate, unittests, sonarqube, qualitygate
+# Si no existen, usar True por defecto
+pipeline_id_map_micro = {}
+for g in general_rows:
+    config = g.get('config', {})
+    if isinstance(config, str):
+        try:
+            config = json.loads(config)
+        except Exception:
+            config = {}
+    securitygate = config.get('securitygate', True)
+    unittests = config.get('unittests', True)
+    sonarqube = config.get('sonarqube', True)
+    qualitygate = config.get('qualitygate', True)
+    pipeline_id = get_pipeline_id_for_microservice(securitygate, unittests, sonarqube, qualitygate)
+    if pipeline_id is None:
+        print(f"⚠️ Combinación de pipeline no encontrada para microservicio {g.get('appName')}, usando id=1")
+        pipeline_id = 1
+    pipeline_id_map_micro[g['id_microservice_directory']] = pipeline_id
+
+# ========== Escribir app_general_properties.csv SOLO con los campos de la tabla SQL y los IDs correctos ==========
+filtered_general_rows = []
+for i, r in enumerate(general_rows, 1):
+    filtered_row = {k: r.get(k, '') for k in app_headers_sql}
+    filtered_row['id'] = i
+    # Asignar id_pipeline_properties_directory según la combinación real
+    filtered_row['id_pipeline_properties_directory'] = pipeline_id_map_micro.get(r['id_microservice_directory'], 1)
+    filtered_row['id_pipeline_general_properties_directory'] = filtered_row['id_pipeline_properties_directory']
+    filtered_general_rows.append(filtered_row)
+with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=app_headers_sql)
+    writer.writeheader()
+    writer.writerows(filtered_general_rows)
+
+print("✅ app_general_properties.csv ahora solo contiene los campos de la tabla SQL y los IDs correctos.")
