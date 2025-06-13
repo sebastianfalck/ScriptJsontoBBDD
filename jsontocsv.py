@@ -11,6 +11,38 @@ csv_folder.mkdir(exist_ok=True)
 json_folder = Path('.')
 token_file = Path('token.json')
 
+# ========== BOOTSTRAP: Crear CSVs requeridos si no existen (excepto catálogos estáticos) ==========
+# Definir los encabezados mínimos para los CSVs requeridos
+bootstrap_csvs = {
+    'token_directory.csv': ['id', 'token', 'token_name', 'namespace_name'],
+    'usage_directory.csv': ['id', 'usage'],
+    'image_directory.csv': ['id', 'image_name'],
+    'path_directory.csv': ['id', 'volume_path'],
+    'project_directory.csv': ['id', 'project_name', 'project_acronym'],
+    'appname_directory.csv': ['id', 'app'],
+    'app_directory.csv': ['id', 'id_appname', 'repo_name', 'repo_url'],
+    'env_directory.csv': ['id', 'env', 'reponexus'],
+    'country_directory.csv': ['id', 'country'],
+    'label_directory.csv': ['id', 'app_label'],
+    'app_type_directory.csv': ['id', 'app_type'],
+    'runtime_directory.csv': ['id', 'runtime_name', 'version_path'],
+    'person_in_charge.csv': ['id', 'nombre', 'email'],
+    'security_champion.csv': ['id', 'nombre', 'email'],
+    'microservice_properties_directory.csv': ['id','id_usage_directory','cpulimits','cpurequest','memorylimits','memoryrequest','replicas','id_token_directory','id_openshift_properties_directory','id_path_directory','id_image_directory','id_drs_config'],
+    'microservice_drs_config.csv': ['id', 'drs_enabled', 'drs_token', 'drs_namespace'],
+    'app_general_properties.csv': ['id','id_project_directory','id_app_directory','id_person_in_charge','id_security_champion','id_env_directory','id_country_directory','id_label_directory','id_app_type_directory','id_pipeline_properties_directory','id_pipeline_general_properties_directory','id_runtime_directory','sonarqubepath_exec','id_microservice_directory','id_datastage_properties_directory','id_database_properties_directory','id_was_properties_directory','id_pims_properties_directory','project_name','appName','repositoryUrl','buildConfigurationMode','env','country','ocpLabel','project','baseImageVersion'],
+    'datastage_properties_directory.csv': ['id'],
+    'database_properties_directory.csv': ['id'],
+    'was_properties_directory.csv': ['id', 'host', 'instance_name', 'context_root'],
+    'pims_properties_directory.csv': ['id', 'nexus_url'],
+}
+for fname, headers in bootstrap_csvs.items():
+    fpath = csv_folder / fname
+    if not fpath.exists():
+        with open(fpath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=headers)
+            writer.writeheader()
+
 # Cargar tokens
 with open(token_file, 'r', encoding='utf-8') as f:
     token_map = json.load(f)
@@ -65,17 +97,27 @@ with open(csv_folder / 'token_directory.csv', newline='', encoding='utf-8') as f
     for row in reader:
         token_id_map[(row['token'], row['token_name'])] = int(row['id'])
 
+# ========== GENERAR TODAS LAS COMBINACIONES PARA openshift_properties_directory.csv ==========
+from itertools import product
+openshift_fields = ['secrets_enabled', 'configmap_enabled', 'volume_enabled']
+openshift_combinations = list(product([True, False], repeat=3))
+openshift_rows = []
+for idx, combo in enumerate(openshift_combinations, 1):
+    row = {'id': idx}
+    for i, field in enumerate(openshift_fields):
+        row[field] = combo[i]
+    openshift_rows.append(row)
+with open(csv_folder / 'openshift_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.DictWriter(f, fieldnames=['id'] + openshift_fields)
+    writer.writeheader()
+    writer.writerows(openshift_rows)
 # Leer combinaciones predefinidas de openshift_properties_directory.csv
 openshift_map = {}
-openshift_csv_path = csv_folder / 'openshift_properties_directory.csv'
-if openshift_csv_path.exists():
-    with open(openshift_csv_path, newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            key = (row['secrets_enabled'] == 'True', row['configmap_enabled'] == 'True', row['volume_enabled'] == 'True')
-            openshift_map[key] = int(row['id'])
-else:
-    print('⚠️ openshift_properties_directory.csv no existe. Debe estar predefinido.')
+with open(csv_folder / 'openshift_properties_directory.csv', newline='', encoding='utf-8') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        key = (row['secrets_enabled'] == 'True', row['configmap_enabled'] == 'True', row['volume_enabled'] == 'True')
+        openshift_map[key] = int(row['id'])
 
 # Leer combinaciones predefinidas de pipeline_properties_directory.csv
 pipeline_map = {}
@@ -94,6 +136,38 @@ if pipeline_csv_path.exists():
 else:
     print('⚠️ pipeline_properties_directory.csv no existe. Debe estar predefinido.')
 
+# ========== BOOTSTRAP: Crear CSVs requeridos si no existen (excepto catálogos estáticos) ==========
+# Definir los encabezados mínimos para los CSVs requeridos
+bootstrap_csvs = {
+    'token_directory.csv': ['id', 'token', 'token_name', 'namespace_name'],
+    'usage_directory.csv': ['id', 'usage'],
+    'image_directory.csv': ['id', 'image_name'],
+    'path_directory.csv': ['id', 'volume_path'],
+    'project_directory.csv': ['id', 'project_name', 'project_acronym'],
+    'appname_directory.csv': ['id', 'app'],
+    'app_directory.csv': ['id', 'id_appname', 'repo_name', 'repo_url'],
+    'env_directory.csv': ['id', 'env', 'reponexus'],
+    'country_directory.csv': ['id', 'country'],
+    'label_directory.csv': ['id', 'app_label'],
+    'app_type_directory.csv': ['id', 'app_type'],
+    'runtime_directory.csv': ['id', 'runtime_name', 'version_path'],
+    'person_in_charge.csv': ['id', 'nombre', 'email'],
+    'security_champion.csv': ['id', 'nombre', 'email'],
+    'microservice_properties_directory.csv': ['id','id_usage_directory','cpulimits','cpurequest','memorylimits','memoryrequest','replicas','id_token_directory','id_openshift_properties_directory','id_path_directory','id_image_directory','id_drs_config'],
+    'microservice_drs_config.csv': ['id', 'drs_enabled', 'drs_token', 'drs_namespace'],
+    'app_general_properties.csv': ['id','id_project_directory','id_app_directory','id_person_in_charge','id_security_champion','id_env_directory','id_country_directory','id_label_directory','id_app_type_directory','id_pipeline_properties_directory','id_pipeline_general_properties_directory','id_runtime_directory','sonarqubepath_exec','id_microservice_directory','id_datastage_properties_directory','id_database_properties_directory','id_was_properties_directory','id_pims_properties_directory','project_name','appName','repositoryUrl','buildConfigurationMode','env','country','ocpLabel','project','baseImageVersion'],
+    'datastage_properties_directory.csv': ['id'],
+    'database_properties_directory.csv': ['id'],
+    'was_properties_directory.csv': ['id', 'host', 'instance_name', 'context_root'],
+    'pims_properties_directory.csv': ['id', 'nexus_url'],
+}
+for fname, headers in bootstrap_csvs.items():
+    fpath = csv_folder / fname
+    if not fpath.exists():
+        with open(fpath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=headers)
+            writer.writeheader()
+
 for filename in os.listdir(json_folder):
     if filename.endswith('.json') and filename != token_file.name:
         filepath = json_folder / filename
@@ -106,8 +180,7 @@ for filename in os.listdir(json_folder):
         print(f"Procesando archivo: {filename}")
         projects = data.get('project') or data.get('projects') or []
         for project in projects:
-            project_name = project.get('name')
-            project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
+            project_name = project.get('name', '')
             print(f"  Proyecto: {project_name}")
             for ms in project.get('ms', []):
                 config = ms.get('config', {})
@@ -209,7 +282,7 @@ for filename in os.listdir(json_folder):
                         # app_general_properties row
                         general_rows.append({
                             'id_microservice_directory': ms_id,
-                            'id_project_directory': project_id,
+                            'id_project_directory': project_id_map.get(project_name, ''),
                             'id_app_directory': app_dir_id,
                             'id_env_directory': env_id,
                             'id_country_directory': country_id,
@@ -672,9 +745,3 @@ for g in general_rows:
         print(f"⚠️ Combinación de pipeline no encontrada para microservicio {g.get('appName')}, usando id=1")
         pipeline_id = 1
     pipeline_id_map_micro[g['id_microservice_directory']] = pipeline_id
-
-# 3. Escribir app_general_properties.csv con los campos ajustados
-with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=app_headers_sql)
-    writer.writeheader()
-    writer.writerows(filtered_general_rows)
