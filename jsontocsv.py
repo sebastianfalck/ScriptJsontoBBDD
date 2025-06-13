@@ -672,10 +672,10 @@ for r in microservice_rows:
     drs_enabled = False
     drs_token = ''
     drs_namespace = ''
-    # Buscar el config original asociado a este microservicio (parseando el string si es necesario)
-    config_found = False
+    # Solo considerar ambiente de producción (master)
+    env_is_master = False
     for g in general_rows:
-        if g.get('id_microservice_directory') == r['id']:
+        if g.get('id_microservice_directory') == r['id'] and g.get('env') == 'master':
             config_str = g.get('config', '')
             config = {}
             if isinstance(config_str, str):
@@ -687,17 +687,21 @@ for r in microservice_rows:
                 drs_enabled = config.get('drsDeployEnable', False)
                 drs_token = config.get('drs_token', '')
                 drs_namespace = config.get('drs_namespace', '')
-            config_found = True
+            env_is_master = True
             break
-    ms_drs_config_rows.append({
-        'id': ms_drs_config_counter,
-        'drs_enabled': drs_enabled,
-        'drs_token': drs_token,
-        'drs_namespace': drs_namespace
-    })
-    ms_drs_config_id_map[r['id']] = ms_drs_config_counter
-    ms_drs_config_counter += 1
-# Escribir microservice_drs_config.csv
+    # Solo agregar fila si es ambiente master
+    if env_is_master:
+        ms_drs_config_rows.append({
+            'id': ms_drs_config_counter,
+            'drs_enabled': drs_enabled,
+            'drs_token': drs_token,
+            'drs_namespace': drs_namespace
+        })
+        ms_drs_config_id_map[r['id']] = ms_drs_config_counter
+        ms_drs_config_counter += 1
+    else:
+        ms_drs_config_id_map[r['id']] = ''  # No corresponde para no-master
+# Escribir microservice_drs_config.csv solo con los de master
 with open(csv_folder / 'microservice_drs_config.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=['id', 'drs_enabled', 'drs_token', 'drs_namespace'])
     writer.writeheader()
@@ -720,7 +724,18 @@ ms_headers_sql = [
 filtered_microservice_rows = []
 for r in microservice_rows:
     filtered_row = {k: r.get(k, '') for k in ms_headers_sql if k != 'id_drs_config'}
-    filtered_row['id_drs_config'] = ms_drs_config_id_map.get(r['id'], '')
+    # Solo asignar id_drs_config si el microservicio es master y tiene id asignado
+    id_drs = ms_drs_config_id_map.get(r['id'], '')
+    # Buscar el ambiente correspondiente en general_rows
+    env = None
+    for g in general_rows:
+        if g.get('id_microservice_directory') == r['id']:
+            env = g.get('env')
+            break
+    if env == 'master' and id_drs:
+        filtered_row['id_drs_config'] = id_drs
+    else:
+        filtered_row['id_drs_config'] = ''
     filtered_microservice_rows.append(filtered_row)
 with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=ms_headers_sql)
