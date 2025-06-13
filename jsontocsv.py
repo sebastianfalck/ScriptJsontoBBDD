@@ -53,6 +53,12 @@ def get_or_create_id(mapping, value, counter_name):
         global_vars[counter_name] += 1
     return mapping[value]
 
+def get_key_insensitive(d, key):
+    for k in d.keys():
+        if k.lower() == key.lower():
+            return d[k]
+    return [] if key in ['secrets','configMaps','volumes'] else None
+
 # Construir token_id_map para búsqueda rápida de id_token_directory
 with open(csv_folder / 'token_directory.csv', newline='', encoding='utf-8') as f:
     reader = csv.DictReader(f)
@@ -97,28 +103,23 @@ for filename in os.listdir(json_folder):
             except Exception as e:
                 print(f"⚠️ Error al leer {filename}: {e}")
                 continue
-
-        # Soportar tanto 'project' como 'projects' como clave raíz
+        print(f"Procesando archivo: {filename}")
         projects = data.get('project') or data.get('projects') or []
         for project in projects:
             project_name = project.get('name')
             project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
+            print(f"  Proyecto: {project_name}")
             for ms in project.get('ms', []):
-                # --- ADAPTACIÓN: parsear config si es string ---
                 config = ms.get('config', {})
+                app_name = ''
                 if isinstance(config, str):
                     try:
                         config = json.loads(config)
-                    except Exception as e:
-                        print(f"⚠️ Error al parsear config en {filename}: {e}")
+                    except Exception:
                         config = {}
-                # Hacer que la búsqueda de claves sea insensible a mayúsculas/minúsculas
-                def get_key_insensitive(d, key):
-                    for k in d.keys():
-                        if k.lower() == key.lower():
-                            return d[k]
-                    return [] if key in ['secrets','configMaps','volumes'] else None
-                app_name = get_key_insensitive(config, 'appName')
+                if isinstance(config, dict):
+                    app_name = config.get('appName', '')
+                print(f"    Microservicio: {app_name}")
                 appname_id = get_or_create_id(appname_id_map, app_name, 'appname_counter')
                 repo_url = ms.get('repositoryUrl')
                 app_dir_key = (appname_id, repo_url)
@@ -300,8 +301,6 @@ with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='
     writer.writeheader()
     writer.writerows(filtered_general_rows)
 
-print("✅ app_general_properties.csv ahora solo contiene los campos de la tabla SQL y los IDs correctos.")
-
 # ========== NUEVO: Generar CSVs para todas las tablas del modelo.sql ==========
 # Utilidad para crear CSVs vacíos con encabezados de las tablas del modelo.sql
 all_tables = {
@@ -428,9 +427,6 @@ with open(csv_folder / 'app_directory.csv', 'w', newline='', encoding='utf-8') a
     writer.writeheader()
     writer.writerows(app_dir_rows)
 
-print("✅ Todos los CSVs de las tablas del modelo SQL han sido creados en la carpeta 'csv_output' (vacíos si no hay datos)")
-print("✅ CSVs de las tablas directory ahora están correctamente poblados con los valores e IDs usados.")
-
 # ========== AJUSTE: Normalizar openshift_properties_directory y referenciar su id ==========
 # 1. Crear combinaciones únicas de (secrets_enabled, configmap_enabled, volume_enabled) como booleanos
 openshift_map = {}
@@ -476,8 +472,6 @@ with open(csv_folder / 'microservice_properties_directory.csv', 'w', newline='',
     writer.writeheader()
     writer.writerows(filtered_microservice_rows)
 
-print("✅ microservice_properties_directory.csv ahora contiene los campos de la tabla SQL y los IDs correctos.")
-
 # ========== AJUSTE: Normalizar pipeline_properties_directory y referenciar su id ==========
 # 1. Crear combinaciones posibles de (securitygate, unittests, sonarqube, qualitygate)
 pipeline_fields = ['securitygate', 'unittests', 'sonarqube', 'qualitygate']
@@ -510,8 +504,6 @@ for row in general_rows:
 
 # 3. Escribir pipeline_properties_directory.csv correctamente
 # (Ya se escribe correctamente arriba con el bucle for idx, combo in enumerate...)
-
-print("✅ Normalización de pipeline_properties_directory y referencia por id aplicada correctamente.")
 
 # ========== AJUSTE: Poblar app_type_directory.csv con el tipo de app del nombre del archivo JSON country-app_type.json ==========
 app_type_id_map = {}
@@ -546,8 +538,6 @@ with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='
     writer.writeheader()
     writer.writerows(filtered_general_rows)
 
-print("✅ app_general_properties.csv actualizado con id_app_type_directory y id_pipeline_properties_directory.")
-
 # ========== NUEVO: Poblar token_directory.csv con los valores de token.json ==========
 token_rows = []
 for i, (token_name, token_value) in enumerate(token_map.items(), 1):
@@ -570,8 +560,6 @@ with open(csv_folder / 'token_directory.csv', 'w', newline='', encoding='utf-8')
     writer.writeheader()
     writer.writerows(token_rows)
 
-print("✅ token_directory.csv generado y poblado correctamente con columnas id, token, token_name, namespace_name.")
-
 # ========== LÓGICA PARA id_image_directory usando baseImageVersion ==========
 image_id_map = {}
 image_counter = 1
@@ -591,8 +579,6 @@ with open(csv_folder / 'image_directory.csv', 'w', newline='', encoding='utf-8')
     writer.writeheader()
     writer.writerows(image_rows)
 
-print("✅ image_directory.csv generado y poblado correctamente.")
-
 # Escribir usage_directory.csv
 usage_rows = []
 for usage, id_ in usage_id_map.items():
@@ -601,8 +587,6 @@ with open(csv_folder / 'usage_directory.csv', 'w', newline='', encoding='utf-8')
     writer = csv.DictWriter(f, fieldnames=['id', 'usage'])
     writer.writeheader()
     writer.writerows(usage_rows)
-
-print("✅ usage_directory.csv generado y poblado correctamente.")
 
 # ========== LÓGICA PARA microservice_drs_config ==========
 ms_drs_config_rows = []
@@ -689,18 +673,8 @@ for g in general_rows:
         pipeline_id = 1
     pipeline_id_map_micro[g['id_microservice_directory']] = pipeline_id
 
-# ========== Escribir app_general_properties.csv SOLO con los campos de la tabla SQL y los IDs correctos ==========
-filtered_general_rows = []
-for i, r in enumerate(general_rows, 1):
-    filtered_row = {k: r.get(k, '') for k in app_headers_sql}
-    filtered_row['id'] = i
-    # Asignar id_pipeline_properties_directory según la combinación real
-    filtered_row['id_pipeline_properties_directory'] = pipeline_id_map_micro.get(r['id_microservice_directory'], 1)
-    filtered_row['id_pipeline_general_properties_directory'] = filtered_row['id_pipeline_properties_directory']
-    filtered_general_rows.append(filtered_row)
+# 3. Escribir app_general_properties.csv con los campos ajustados
 with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=app_headers_sql)
     writer.writeheader()
     writer.writerows(filtered_general_rows)
-
-print("✅ app_general_properties.csv ahora solo contiene los campos de la tabla SQL y los IDs correctos.")
