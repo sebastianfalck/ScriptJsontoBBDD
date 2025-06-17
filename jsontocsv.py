@@ -43,9 +43,11 @@ for fname, headers in bootstrap_csvs.items():
             writer = csv.DictWriter(f, fieldnames=headers)
             writer.writeheader()
 
-# Cargar tokens
+# Cargar tokens (nuevo formato: lista de objetos)
 with open(token_file, 'r', encoding='utf-8') as f:
-    token_map = json.load(f)
+    token_list = json.load(f)
+    # Crear un dict para búsqueda rápida por tokenname
+    token_map = {t['tokenname']: t for t in token_list}
 
 general_rows = []
 microservice_rows = []
@@ -91,11 +93,11 @@ def get_key_insensitive(d, key):
             return d[k]
     return [] if key in ['secrets','configMaps','volumes'] else None
 
-# Construir token_id_map para búsqueda rápida de id_token_directory
+# Construir token_id_map para búsqueda rápida de id_token_directory por tokenname
 with open(csv_folder / 'token_directory.csv', newline='', encoding='utf-8') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        token_id_map[(row['token'], row['token_name'])] = int(row['id'])
+        token_id_map[row['token_name']] = int(row['id'])
 
 # ========== GENERAR TODAS LAS COMBINACIONES PARA openshift_properties_directory.csv ==========
 from itertools import product
@@ -204,14 +206,12 @@ for filename in os.listdir(json_folder):
                 country_id = get_or_create_id(country_id_map, country, 'country_counter')
                 label = get_key_insensitive(config, 'ocpLabel')
                 label_id = get_or_create_id(label_id_map, label, 'label_counter')
-                # --- NUEVO: usage_directory ---
-                usage = get_key_insensitive(config, 'usage')
-                if not usage:
-                    usage = 'internal'
-                if usage not in usage_id_map:
-                    usage_id_map[usage] = usage_counter
-                    usage_counter += 1
-                id_usage_directory = usage_id_map[usage]
+                # --- USAR status del token como usage y mapear id_usage_directory correctamente ---
+                token_ocp = ms.get('tokenOcp')
+                usage = 'internal'  # valor por defecto
+                if token_ocp and token_ocp in token_map:
+                    usage = token_map[token_ocp].get('status', 'internal')
+                id_usage_directory = usage_id_map.get(usage, 1)
                 # Obtener o crear el id del proyecto para project_directory
                 project_id = get_or_create_id(project_id_map, project_name, 'project_counter')
                 # Buscar claves de resQuotas insensible a mayúsculas/minúsculas
@@ -222,9 +222,9 @@ for filename in os.listdir(json_folder):
                     return None
                 for env in ['dev', 'qa', 'master']:
                     env_id = get_or_create_id(env_id_map, env, 'env_counter')
-                    token_key_matched, token_value = get_token_key(ms.get('tokenOcp'), env)
+                    token_ocp = ms.get('tokenOcp')
                     # --- NUEVO: id_token_directory ---
-                    id_token_directory = token_id_map.get((token_value, token_key_matched), '')
+                    id_token_directory = token_id_map.get(token_ocp, '')
                     quotas = {
                         'dev': get_quota_key_insensitive(config, 'dev'),
                         'qa': get_quota_key_insensitive(config, 'qa'),
@@ -616,49 +616,27 @@ with open(csv_folder / 'app_general_properties.csv', 'w', newline='', encoding='
 
 # ========== NUEVO: Poblar token_directory.csv con los valores de token.json ==========
 token_rows = []
-for i, (token_name, token_value) in enumerate(token_map.items(), 1):
-    # Derivar namespace_name si es posible (por ejemplo, parte después de 'ocToken' y antes de env)
-    ns = token_name.replace('ocToken', '')
-    # Quitar sufijos de ambiente comunes
-    for env in ['dev', 'uat', 'prd']:
-        if ns.lower().endswith(env):
-            ns = ns[:-(len(env))]
-    namespace_name = ns if ns else ''
+usage_set = set()
+for i, t in enumerate(token_list, 1):
     token_rows.append({
         'id': i,
-        'token': token_value,
-        'token_name': token_name,
-        'namespace_name': namespace_name
+        'token': t['tokens'],
+        'token_name': t['tokenname'],
+        'namespace_name': t['namespace']
     })
+    usage_set.add(t['status'])
 # Siempre sobrescribir y asegurar el orden correcto de columnas
 with open(csv_folder / 'token_directory.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=['id', 'token', 'token_name', 'namespace_name'])
     writer.writeheader()
     writer.writerows(token_rows)
 
-# ========== LÓGICA PARA id_image_directory usando baseImageVersion ==========
-image_id_map = {}
-image_counter = 1
-for row in microservice_rows:
-    base_image_version = row.get('baseImageVersion', '')
-    if base_image_version and base_image_version not in image_id_map:
-        image_id_map[base_image_version] = image_counter
-        image_counter += 1
-    row['id_image_directory'] = image_id_map.get(base_image_version, '')
-
-# Escribir image_directory.csv
-image_rows = []
-for name, id_ in image_id_map.items():
-    image_rows.append({'id': id_, 'image_name': name})
-with open(csv_folder / 'image_directory.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=['id', 'image_name'])
-    writer.writeheader()
-    writer.writerows(image_rows)
-
-# Escribir usage_directory.csv
+# ========== AJUSTE: Poblar usage_directory.csv con todos los status únicos de token.json =========
+usage_id_map = {}
 usage_rows = []
-for usage, id_ in usage_id_map.items():
-    usage_rows.append({'id': id_, 'usage': usage})
+for idx, usage in enumerate(sorted(usage_set), 1):
+    usage_id_map[usage] = idx
+    usage_rows.append({'id': idx, 'usage': usage})
 with open(csv_folder / 'usage_directory.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=['id', 'usage'])
     writer.writeheader()
