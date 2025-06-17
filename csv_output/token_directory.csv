@@ -1,43 +1,43 @@
 id,token,token_name,namespace_name
-1,token-melilamcdev-123,ocTokenMelilamcdev,namespace-melilamcdev
-2,token-melilamcuat-456,ocTokenMelilamcuat,namespace-melilamcuat
-3,token-melilamcprd-789,ocTokenMelilamcprd,namespace-melilamcprd
-4,token-sjwtchlcddev-abc,ocTokensjwtchlcddev,namespace-sjwtchlcddev
-5,token-sjwtchlcduat-xyz,ocTokensjwtchlcduat,namespace-sjwtchlcduat
-6,token-sjwtchlcdprd-def,ocTokensjwtchlcdprd,namespace-sjwtchlcdprd
-7,token-canalyzerpercddev-111,ocTokenCAnalyzerpercdev,namespace-canalyzerpercddev
-8,token-canalyzerpercuat-222,ocTokenCAnalyzerpercuat,namespace-canalyzerpercuat
-9,token-canalyzerperprd-333,ocTokenCAnalyzerpercprd,namespace-canalyzerperprd
-10,token-canalyzerlamcdev-444,ocTokenCAnalyzerlamcdev,namespace-canalyzerlamcdev
-11,token-canalyzerlamcuat-555,ocTokenCAnalyzerlamcuat,namespace-canalyzerlamcuat
-12,token-canalyzerlamcprd-666,ocTokenCAnalyzerlamcprd,namespace-canalyzerlamcprd
-13,token-pimsperformancedev-888,ocTokenPimsPerformancedev,namespace-pimsperformancedev
-14,token-pimsperformanceuat-999,ocTokenPimsPerformanceuat,namespace-pimsperformanceuat
-15,token-pimsperformanceprd-000,ocTokenPimsPerformanceprd,namespace-pimsperformanceprd
-16,token-webviewcoldev-aaa,ocTokenWebviewColdev,namespace-webviewcoldev
-17,token-webviewcoluat-bbb,ocTokenWebviewColuat,namespace-webviewcoluat
-18,token-webviewcolprd-ccc,ocTokenWebviewColprd,namespace-webviewcolprd
-19,token-satelitefeperdev-ddd,ocTokenSateliteFeperdev,namespace-satelitefeperdev
-20,token-satelitefeperuat-eee,ocTokenSateliteFeperuat,namespace-satelitefeperuat
-21,token-satelitefeperprd-fff,ocTokenSateliteFeperprd,namespace-satelitefeperprd
-22,token-qhapaxfeperdev-fff,ocTokenQhapaxFeperdev,namespace-qhapaxfeperdev
-23,token-qhapaxfeperuat-ggg,ocTokenQhapaxFeperuat,namespace-qhapaxfeperuat
-24,token-qhapaxfeperprd-hhh,ocTokenQhapaxFeperprd,namespace-qhapaxfeperprd
-25,token-qhapaxbeperdev-iii,ocTokenQhapaxBeperdev,namespace-qhapaxbeperdev
-26,token-qhapaxbeperuat-jjj,ocTokenQhapaxBeperuat,namespace-qhapaxbeperuat
-27,token-qhapaxbeperprd-kkk,ocTokenQhapaxBeperprd,namespace-qhapaxbeperprd
-28,token-inventariochldev-lll,ocTokenInventarioChlDev,namespace-inventariochldev
-29,token-inventariochluat-mmm,ocTokenInventarioChlUat,namespace-inventariochluat
-30,token-inventariochlprd-nnn,ocTokenInventarioChlPrd,namespace-inventariochlprd
-31,token-argnewappdev-111,ocTokenArgNewAppdev,namespace-argnewappdev
-32,token-argnewappuat-222,ocTokenArgNewAppuat,namespace-argnewappuat
-33,token-argnewappprd-333,ocTokenArgNewAppprd,namespace-argnewappprd
-34,token-chlnewappdev-444,ocTokenChlNewAppdev,namespace-chlnewappdev
-35,token-chlnewappuat-555,ocTokenChlNewAppuat,namespace-chlnewappuat
-36,token-chlnewappprd-666,ocTokenChlNewAppprd,namespace-chlnewappprd
-37,token-pernewappdev-777,ocTokenPerNewAppdev,namespace-pernewappdev
-38,token-pernewappuat-888,ocTokenPerNewAppuat,namespace-pernewappuat
-39,token-pernewappprd-999,ocTokenPerNewAppprd,namespace-pernewappprd
-40,token-colnewappdev-abc,ocTokenColNewAppdev,namespace-colnewappdev
-41,token-colnewappuat-def,ocTokenColNewAppuat,namespace-colnewappuat
-42,token-colnewappprd-ghi,ocTokenColNewAppprd,namespace-colnewappprd
+1,"{'tokenname': 'ocTokenMelilamcdev', 'tokens': 'token-melilamcdev-123', 'namespace': 'namespace-melilamcdev', 'status': 'internal'}",ocTokenMelilamcdev,Melilamc
+2,"{'tokenname': 'ocTokenMelilamcuat', 'tokens': 'token-melilamcuat-456', 'namespace': 'namespace-melilamcuat', 'status': 'internal'}",ocTokenMelilamcuat,Melilamc
+3,"{'tokenname': 'ocTokenMelilamcprd', 'tokens': 'token-melilamcprd-789', 'namespace': 'namespace-melilamcprd', 'status': 'external'}",ocTokenMelilamcprd,Melilamc
+4,"{'tokenname': 'ocTokensjwtchlcddev', 'tokens': 'token-sjwtchlcddev-abc', 'namespace': 'namespace-sjwtchlcddev', 'status': 'internal'}",ocTokensjwtchlcddev,sjwtchlcd
+5,"{'tokenname': 'ocTokensjwtchlcduat', 'tokens': 'token-sjwtchlcduat-xyz', 'namespace': 'namespace-sjwtchlcduat', 'status': 'expired'}",ocTokensjwtchlcduat,sjwtchlcd
+6,"{'tokenname': 'ocTokensjwtchlcdprd', 'tokens': 'token-sjwtchlcdprd-def', 'namespace': 'namespace-sjwtchlcdprd', 'status': 'external'}",ocTokensjwtchlcdprd,sjwtchlcd
+7,"{'tokenname': 'ocTokenCAnalyzerpercdev', 'tokens': 'token-canalyzerpercddev-111', 'namespace': 'namespace-canalyzerpercddev', 'status': 'internal'}",ocTokenCAnalyzerpercdev,CAnalyzerperc
+8,"{'tokenname': 'ocTokenCAnalyzerpercuat', 'tokens': 'token-canalyzerpercuat-222', 'namespace': 'namespace-canalyzerpercuat', 'status': 'internal'}",ocTokenCAnalyzerpercuat,CAnalyzerperc
+9,"{'tokenname': 'ocTokenCAnalyzerpercprd', 'tokens': 'token-canalyzerperprd-333', 'namespace': 'namespace-canalyzerperprd', 'status': 'external'}",ocTokenCAnalyzerpercprd,CAnalyzerperc
+10,"{'tokenname': 'ocTokenCAnalyzerlamcdev', 'tokens': 'token-canalyzerlamcdev-444', 'namespace': 'namespace-canalyzerlamcdev', 'status': 'internal'}",ocTokenCAnalyzerlamcdev,CAnalyzerlamc
+11,"{'tokenname': 'ocTokenCAnalyzerlamcuat', 'tokens': 'token-canalyzerlamcuat-555', 'namespace': 'namespace-canalyzerlamcuat', 'status': 'internal'}",ocTokenCAnalyzerlamcuat,CAnalyzerlamc
+12,"{'tokenname': 'ocTokenCAnalyzerlamcprd', 'tokens': 'token-canalyzerlamcprd-666', 'namespace': 'namespace-canalyzerlamcprd', 'status': 'external'}",ocTokenCAnalyzerlamcprd,CAnalyzerlamc
+13,"{'tokenname': 'ocTokenPimsPerformancedev', 'tokens': 'token-pimsperformancedev-888', 'namespace': 'namespace-pimsperformancedev', 'status': 'internal'}",ocTokenPimsPerformancedev,PimsPerformance
+14,"{'tokenname': 'ocTokenPimsPerformanceuat', 'tokens': 'token-pimsperformanceuat-999', 'namespace': 'namespace-pimsperformanceuat', 'status': 'internal'}",ocTokenPimsPerformanceuat,PimsPerformance
+15,"{'tokenname': 'ocTokenPimsPerformanceprd', 'tokens': 'token-pimsperformanceprd-000', 'namespace': 'namespace-pimsperformanceprd', 'status': 'external'}",ocTokenPimsPerformanceprd,PimsPerformance
+16,"{'tokenname': 'ocTokenWebviewColdev', 'tokens': 'token-webviewcoldev-aaa', 'namespace': 'namespace-webviewcoldev', 'status': 'internal'}",ocTokenWebviewColdev,WebviewCol
+17,"{'tokenname': 'ocTokenWebviewColuat', 'tokens': 'token-webviewcoluat-bbb', 'namespace': 'namespace-webviewcoluat', 'status': 'internal'}",ocTokenWebviewColuat,WebviewCol
+18,"{'tokenname': 'ocTokenWebviewColprd', 'tokens': 'token-webviewcolprd-ccc', 'namespace': 'namespace-webviewcolprd', 'status': 'external'}",ocTokenWebviewColprd,WebviewCol
+19,"{'tokenname': 'ocTokenSateliteFeperdev', 'tokens': 'token-satelitefeperdev-ddd', 'namespace': 'namespace-satelitefeperdev', 'status': 'internal'}",ocTokenSateliteFeperdev,SateliteFeper
+20,"{'tokenname': 'ocTokenSateliteFeperuat', 'tokens': 'token-satelitefeperuat-eee', 'namespace': 'namespace-satelitefeperuat', 'status': 'internal'}",ocTokenSateliteFeperuat,SateliteFeper
+21,"{'tokenname': 'ocTokenSateliteFeperprd', 'tokens': 'token-satelitefeperprd-fff', 'namespace': 'namespace-satelitefeperprd', 'status': 'external'}",ocTokenSateliteFeperprd,SateliteFeper
+22,"{'tokenname': 'ocTokenQhapaxFeperdev', 'tokens': 'token-qhapaxfeperdev-fff', 'namespace': 'namespace-qhapaxfeperdev', 'status': 'internal'}",ocTokenQhapaxFeperdev,QhapaxFeper
+23,"{'tokenname': 'ocTokenQhapaxFeperuat', 'tokens': 'token-qhapaxfeperuat-ggg', 'namespace': 'namespace-qhapaxfeperuat', 'status': 'internal'}",ocTokenQhapaxFeperuat,QhapaxFeper
+24,"{'tokenname': 'ocTokenQhapaxFeperprd', 'tokens': 'token-qhapaxfeperprd-hhh', 'namespace': 'namespace-qhapaxfeperprd', 'status': 'external'}",ocTokenQhapaxFeperprd,QhapaxFeper
+25,"{'tokenname': 'ocTokenQhapaxBeperdev', 'tokens': 'token-qhapaxbeperdev-iii', 'namespace': 'namespace-qhapaxbeperdev', 'status': 'internal'}",ocTokenQhapaxBeperdev,QhapaxBeper
+26,"{'tokenname': 'ocTokenQhapaxBeperuat', 'tokens': 'token-qhapaxbeperuat-jjj', 'namespace': 'namespace-qhapaxbeperuat', 'status': 'internal'}",ocTokenQhapaxBeperuat,QhapaxBeper
+27,"{'tokenname': 'ocTokenQhapaxBeperprd', 'tokens': 'token-qhapaxbeperprd-kkk', 'namespace': 'namespace-qhapaxbeperprd', 'status': 'external'}",ocTokenQhapaxBeperprd,QhapaxBeper
+28,"{'tokenname': 'ocTokenInventarioChlDev', 'tokens': 'token-inventariochldev-lll', 'namespace': 'namespace-inventariochldev', 'status': 'internal'}",ocTokenInventarioChlDev,InventarioChl
+29,"{'tokenname': 'ocTokenInventarioChlUat', 'tokens': 'token-inventariochluat-mmm', 'namespace': 'namespace-inventariochluat', 'status': 'internal'}",ocTokenInventarioChlUat,InventarioChl
+30,"{'tokenname': 'ocTokenInventarioChlPrd', 'tokens': 'token-inventariochlprd-nnn', 'namespace': 'namespace-inventariochlprd', 'status': 'external'}",ocTokenInventarioChlPrd,InventarioChl
+31,"{'tokenname': 'ocTokenArgNewAppdev', 'tokens': 'token-argnewappdev-111', 'namespace': 'namespace-argnewappdev', 'status': 'internal'}",ocTokenArgNewAppdev,ArgNewApp
+32,"{'tokenname': 'ocTokenArgNewAppuat', 'tokens': 'token-argnewappuat-222', 'namespace': 'namespace-argnewappuat', 'status': 'internal'}",ocTokenArgNewAppuat,ArgNewApp
+33,"{'tokenname': 'ocTokenArgNewAppprd', 'tokens': 'token-argnewappprd-333', 'namespace': 'namespace-argnewappprd', 'status': 'external'}",ocTokenArgNewAppprd,ArgNewApp
+34,"{'tokenname': 'ocTokenChlNewAppdev', 'tokens': 'token-chlnewappdev-444', 'namespace': 'namespace-chlnewappdev', 'status': 'internal'}",ocTokenChlNewAppdev,ChlNewApp
+35,"{'tokenname': 'ocTokenChlNewAppuat', 'tokens': 'token-chlnewappuat-555', 'namespace': 'namespace-chlnewappuat', 'status': 'internal'}",ocTokenChlNewAppuat,ChlNewApp
+36,"{'tokenname': 'ocTokenChlNewAppprd', 'tokens': 'token-chlnewappprd-666', 'namespace': 'namespace-chlnewappprd', 'status': 'external'}",ocTokenChlNewAppprd,ChlNewApp
+37,"{'tokenname': 'ocTokenPerNewAppdev', 'tokens': 'token-pernewappdev-777', 'namespace': 'namespace-pernewappdev', 'status': 'internal'}",ocTokenPerNewAppdev,PerNewApp
+38,"{'tokenname': 'ocTokenPerNewAppuat', 'tokens': 'token-pernewappuat-888', 'namespace': 'namespace-pernewappuat', 'status': 'internal'}",ocTokenPerNewAppuat,PerNewApp
+39,"{'tokenname': 'ocTokenPerNewAppprd', 'tokens': 'token-pernewappprd-999', 'namespace': 'namespace-pernewappprd', 'status': 'external'}",ocTokenPerNewAppprd,PerNewApp
+40,"{'tokenname': 'ocTokenColNewAppdev', 'tokens': 'token-colnewappdev-abc', 'namespace': 'namespace-colnewappdev', 'status': 'internal'}",ocTokenColNewAppdev,ColNewApp
+41,"{'tokenname': 'ocTokenColNewAppuat', 'tokens': 'token-colnewappuat-def', 'namespace': 'namespace-colnewappuat', 'status': 'internal'}",ocTokenColNewAppuat,ColNewApp
+42,"{'tokenname': 'ocTokenColNewAppprd', 'tokens': 'token-colnewappprd-ghi', 'namespace': 'namespace-colnewappprd', 'status': 'external'}",ocTokenColNewAppprd,ColNewApp
