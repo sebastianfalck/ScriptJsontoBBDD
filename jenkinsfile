@@ -1,0 +1,17 @@
+// Obtener correo del ejecutor del pipeline
+def email = currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause)?.userId + "@tu-dominio.com"
+
+def yamlFilePath = "/tmp/${params.RESOURCE_TYPE}-${params.NOMBRE}${endNameCer}-${fecha}.yaml"
+
+emailext(
+    to: email,
+    subject: "Backup YAML generado por pipeline",
+    body: """Hola,
+
+Adjunto encontrarás el archivo de respaldo generado automáticamente por la ejecución del pipeline.
+
+Saludos,
+Tu equipo Jenkins
+""",
+    attachmentsPattern: yamlFilePath
+)
