@@ -15,9 +15,9 @@ def buscarProyecto(nombreProyecto, namespace, archivoExcel):
             fila_limpia = {clave.strip(): valor.strip('[]') for clave, valor in fila.items()}
 
             # Validar que el proyecto coincida
-            if fila_limpia['appName'] == nombreProyecto:
-                # Revisar si el namespace está en alguna de las columnas
-                if any(namespace == fila_limpia[col] for col in ["NameSpaceDev", "NameSpaceUat", "NameSpacePrd", "NameSpaceDrs"]):
+            if fila_limpia.get('appName') == nombreProyecto:
+                # Revisar si el namespace está en alguna de las columnas (si no existe la columna, ignora)
+                if any(namespace == fila_limpia.get(col, "") for col in ["NameSpaceDev", "NameSpaceUat", "NameSpacePrd", "NameSpaceDrs"]):
                     data.append(fila_limpia)
 
     if data:
